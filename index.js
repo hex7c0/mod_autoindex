@@ -4,7 +4,7 @@
  * @module mod_autoindex
  * @package mod_autoindex
  * @subpackage main
- * @version 1.0.0
+ * @version 1.1.0
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -47,22 +47,36 @@ function multiple(length,limit) {
 }
 
 /**
+ * add zero
+ * 
+ * @function pad
+ * @param {Integer} num - number
+ * @return {String}
+ */
+function pad(num) {
+
+    var norm = Math.abs(Math.floor(num));
+    return (norm < 10 ? '0' : '') + norm;
+}
+
+/**
  * function wrapper for multiple require
  * 
  * @function wrapper
- * @param {Object} my - custom object parsed
+ * @param {Object} my - options
  * @return {Object}
  */
-function wrapper(root) {
+function wrapper(my) {
 
     var header = '<html>\n<head><title>Index of {{path}}</title></head>\n<body bgcolor="white">\n<h1>Index of {{path}}</h1><hr><pre>\n';
     var footer = '</pre><hr></body>\n</html>\n';
+    var month = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct',
+            'Nov','Dec'];
 
     return function mod(req,res,next) {
 
-        var head = header;
         var original = url(req.originalUrl || req.url).pathname;
-        var prova = root + original;
+        var prova = my.root + original;
 
         fs.stat(prova,function(err,stats) {
 
@@ -72,6 +86,8 @@ function wrapper(root) {
             if (!stats.isDirectory()) {
                 return next();
             }
+
+            var head = header;
             head = head.replace(/{{path}}/g,original);
             if (original != '/') {
                 head += '<a href="../">../</a>\n';
@@ -81,30 +97,59 @@ function wrapper(root) {
                 if (err) {
                     return next();
                 }
+
+                var f = '';
                 files.forEach(function(file) {
 
-                    var ss = fs.statSync(prova + '/' + file);
+                    if (my.exclude) {
+                        if (my.exclude.test(file)) {
+                            return;
+                        }
+                    }
+                    var h;
                     var size;
+                    var ss = fs.statSync(prova + '/' + file);
+                    var d = new Date(ss.mtime);
                     if (ss.isDirectory()) {
                         size = '-';
-                        head += '<a href="' + file + '/">' + file + '</a>';
+                        h = '<a href="' + file + '/">' + file + '</a>';
                     } else {
                         size = String(ss.size);
-                        head += '<a href="' + file + '">' + file + '</a>';
+                        h = '<a href="' + file + '">' + file + '</a>';
                     }
-                    head += multiple(file.length,50);
-                    head += new Date(ss.mtime).toUTCString();
-                    head += multiple(size.length,20);
-                    head += size + '\n';
+                    h += multiple(file.length,50);
+                    if (my.date) {
+                        h += pad(d.getDate()) + '-' + month[d.getMonth()] + '-'
+                                + d.getFullYear();
+                        h += ' ' + pad(d.getHours()) + ':'
+                                + pad(d.getMinutes());
+                        h += multiple(size.length,20);
+                    }
+                    if (my.size) {
+                        h += size;
+                    }
+                    h += '\n';
+                    if (my.priority) {
+                        if (size == '-') {
+                            head += h;
+                        } else {
+                            f += h;
+                        }
+                    } else {
+                        head += h;
+                    }
                     return;
                 });
 
+                head += f;
                 res.send(head + footer);
                 return;
             });
 
             return;
         });
+
+        return;
     };
 }
 
@@ -114,7 +159,7 @@ function wrapper(root) {
  * @exports index
  * @function index
  * @param {String} root - root path
- * @param {Object} options - various options. Check README.md
+ * @param {Object} [options] - various options. Check README.md
  * @return {Object}
  */
 module.exports = function index(root,options) {
@@ -122,7 +167,6 @@ module.exports = function index(root,options) {
     if (!root) {
         throw new TypeError('root path required');
     }
-
     if (!fs.existsSync(root)) {
         throw new Error('path not exists');
     }
@@ -133,5 +177,14 @@ module.exports = function index(root,options) {
         var root = root.substr(0,root.length - 1);
     }
 
-    return wrapper(root);
+    var options = options || Object.create(null);
+    var my = {
+        root: root,
+        exclude: options.exclude || false,
+        date: options.date == false ? false : true,
+        size: options.size == false ? false : true,
+        priority: options.priority == false ? false : true,
+    };
+
+    return wrapper(my);
 };
