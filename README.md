@@ -1,0 +1,54 @@
+# [mod_autoindex](https://github.com/hex7c0/mod_autoindex)
+[![NPM version](https://badge.fury.io/js/mod_autoindex.svg)](http://badge.fury.io/js/mod_autoindex)
+[![Build Status](https://travis-ci.org/hex7c0/mod_autoindex.svg?branch=master)](https://travis-ci.org/hex7c0/mod_autoindex)
+[![devDependency Status](https://david-dm.org/hex7c0/mod_autoindex/dev-status.svg)](https://david-dm.org/hex7c0/mod_autoindex#info=devDependencies)
+
+Generates directory indexes, automatically, similar to the Unix `ls` command or the Win32 `dir` shell command.
+Display index of given root directory, like https://code.angularjs.org/1.3.0-beta.17/
+Use in combination with [serve-static](https://github.com/expressjs/serve-static) (middleware inside express module),
+
+## Installation
+
+Install through NPM
+
+```
+npm install mod_autoindex
+```
+or
+```
+git clone git://github.com/hex7c0/mod_autoindex.git
+```
+or
+```
+http://supergiovane.tk/#/mod_autoindex
+```
+
+## API
+
+inside expressjs project
+```js
+var index = require('mod_autoindex');
+var express = require('express');
+
+var DIR = __dirname + '/..';
+var app = express();
+
+// index
+app.use(index(DIR));
+
+// download file
+app.use(express.static(DIR));
+```
+
+### mod_autoindex(root)
+
+ - `root` - **String** Index given root directory *(default "required")*
+
+#### Examples
+
+Take a look at my [examples](https://github.com/hex7c0/mod_autoindex/tree/master/examples)
+
+## License
+Copyright (c) 2014 hex7c0
+
+Licensed under the GPLv3 license.
