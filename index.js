@@ -83,9 +83,9 @@ function wrapper(my) {
         var original = url(req.originalUrl || req.url).pathname;
         var prova = my.root + original;
 
-        fs.stat(prova,function(err,stats) {
+        fs.stat(prova,function(e,stats) {
 
-            if (err) {
+            if (e) {
                 return next();
             }
             if (!stats.isDirectory()) {
@@ -106,10 +106,8 @@ function wrapper(my) {
                 var f = '';
                 files.forEach(function(file) {
 
-                    if (my.exclude) {
-                        if (my.exclude.test(file)) {
-                            return;
-                        }
+                    if (my.exclude && my.exclude.test(file)) {
+                        return;
                     }
                     var h;
                     var size;
