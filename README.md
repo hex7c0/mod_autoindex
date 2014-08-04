@@ -4,8 +4,9 @@
 [![devDependency Status](https://david-dm.org/hex7c0/mod_autoindex/dev-status.svg)](https://david-dm.org/hex7c0/mod_autoindex#info=devDependencies)
 
 Generates directory indexes, automatically, similar to the Unix `ls` command or the Win32 `dir` shell command.
+Use in combination with [serve-static](https://github.com/expressjs/serve-static) (middleware inside [express](https://github.com/strongloop/express) module).
+
 Display index of given root directory, like https://code.angularjs.org/1.3.0-beta.17/
-Use in combination with [serve-static](https://github.com/expressjs/serve-static) (middleware inside express module),
 
 ## Installation
 
@@ -40,7 +41,7 @@ app.use(index(DIR));
 app.use(express.static(DIR));
 ```
 
-### mod_autoindex(root)
+### index(root)
 
  - `root` - **String** Index given root directory *(default "required")*
 
