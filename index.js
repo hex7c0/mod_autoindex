@@ -75,6 +75,11 @@ function wrapper(my) {
 
     return function mod(req,res,next) {
 
+        if (my.strictMethod) {
+            if ('GET' != req.method && 'HEAD' != req.method) {
+                return next();
+            }
+        }
         var original = url(req.originalUrl || req.url).pathname;
         var prova = my.root + original;
 
@@ -184,6 +189,7 @@ module.exports = function index(root,options) {
         date: options.date == false ? false : true,
         size: options.size == false ? false : true,
         priority: options.priority == false ? false : true,
+        strictMethod: Boolean(options.strictMethod)
     };
 
     return wrapper(my);

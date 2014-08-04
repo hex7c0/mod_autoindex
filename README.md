@@ -48,6 +48,7 @@ app.use(express.static(DIR));
   - `date` - **Boolean** Flag for info modification time *(default "enabled")*
   - `size` - **Boolean** Flag for info files size *(default "enabled")*
   - `priority` - **Boolean** Flag for dirs priority *(default "enabled")*
+  - `strictMethod` - **Boolean** Flag for check "HEAD" and "GET" HTTP methods *(default "disabled")*
 
 #### Examples
 
