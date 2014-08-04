@@ -1,0 +1,45 @@
+{
+  "version": "1.0.0",
+  "name": "mod_autoindex",
+  "description": "generates directory indexes, automatically, similar to the Unix `ls` command or the Win32 `dir` shell command",
+  "keywords": [
+    "index",
+    "autoindex",
+    "static"
+  ],
+  "preferGlobal": false,
+  "homepage": "http://supergiovane.tk/#/mod_autoindex",
+  "author": {
+    "name": "hex7c0",
+    "email": "hex7c0@gmail.com",
+    "url": "http://hex7c0.tk/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hex7c0/mod_autoindex.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hex7c0/mod_autoindex/issues",
+    "email": "hex7c0@gmail.com"
+  },
+  "directories":{
+    "doc":"./doc"
+  },
+  "main": "index.min.js",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "express": "4.7.2",
+    "mocha": "~1.21.3",
+    "grunt-contrib-clean": "0.5.0",
+    "grunt-contrib-uglify": "0.5.0",
+    "grunt-shell": "~0.7.0"
+  },
+  "engines": {
+    "node": ">=0.10"
+  },
+  "scripts": {
+    "prepublish": "npm prune"
+  },
+  "license": "GPLv3"
+}
