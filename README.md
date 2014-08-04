@@ -6,7 +6,7 @@
 Generates directory indexes, automatically, similar to the Unix `ls` command or the Win32 `dir` shell command.
 Use in combination with [serve-static](https://github.com/expressjs/serve-static) (middleware inside [express](https://github.com/strongloop/express) module).
 
-Display index of given root directory, like https://code.angularjs.org/1.3.0-beta.17/
+Display index of given root directory, like https://code.angularjs.org/1.3.0-beta.17/ or `apache2 mod_autoindex`
 
 ## Installation
 
