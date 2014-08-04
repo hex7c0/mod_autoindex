@@ -30,20 +30,24 @@ inside expressjs project
 ```js
 var index = require('mod_autoindex');
 var express = require('express');
-
-var DIR = __dirname + '/..';
 var app = express();
+var DIR = __dirname + '/..';
 
 // index
 app.use(index(DIR));
 
-// download file
+// file download
 app.use(express.static(DIR));
 ```
 
-### index(root)
+### index(root,[options])
 
  - `root` - **String** Index given root directory *(default "required")*
+ - `options` - **Object** Customization
+  - `exclude` - **RegExp** Regular expression for exclude files/dirs *(default "disabled")*
+  - `date` - **Boolean** Flag for info modification time *(default "enabled")*
+  - `size` - **Boolean** Flag for info files size *(default "enabled")*
+  - `priority` - **Boolean** Flag for dirs priority *(default "enabled")*
 
 #### Examples
 
