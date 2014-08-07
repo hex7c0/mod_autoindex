@@ -1,10 +1,10 @@
-# [mod_autoindex](https://github.com/hex7c0/mod_autoindex)
+# [mod_autoindex](http://supergiovane.tk/#/mod_autoindex)
 [![NPM version](https://badge.fury.io/js/mod_autoindex.svg)](http://badge.fury.io/js/mod_autoindex)
 [![Build Status](https://travis-ci.org/hex7c0/mod_autoindex.svg?branch=master)](https://travis-ci.org/hex7c0/mod_autoindex)
 [![devDependency Status](https://david-dm.org/hex7c0/mod_autoindex/dev-status.svg)](https://david-dm.org/hex7c0/mod_autoindex#info=devDependencies)
 
 Generates directory indexes, automatically, similar to the Unix `ls` command or the Win32 `dir` shell command.
-Use in combination with [serve-static](https://github.com/expressjs/serve-static) (middleware inside [express](https://github.com/strongloop/express) module).
+In combination with [serve-static](https://github.com/expressjs/serve-static).
 
 Display index of given root directory, like https://code.angularjs.org/1.3.0-beta.17/ or `apache2 mod_autoindex`
 
@@ -49,6 +49,7 @@ app.use(express.static(DIR));
   - `size` - **Boolean** Flag for info files size *(default "enabled")*
   - `priority` - **Boolean** Flag for dirs priority *(default "enabled")*
   - `strictMethod` - **Boolean** Flag for check "HEAD" and "GET" HTTP methods *(default "disabled")*
+  - `static` - **Object** Options for [serve-static](https://github.com/expressjs/serve-static) *(default "null")*
 
 #### Examples
 
