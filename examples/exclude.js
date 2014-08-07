@@ -31,9 +31,6 @@ options.priority = false; // disable dir priority
 // index
 app.use(index(DIR,options));
 
-// download file
-app.use(express.static(DIR));
-
 // server starting
 app.listen(3000);
 console.log('starting "hello world" on port 3000');

@@ -18,6 +18,7 @@ try {
     var fs = require('fs');
     var resolve = require('path').resolve;
     var url = require('url').parse;
+    var serve = require('serve-static');
 } catch (MODULE_NOT_FOUND) {
     console.error(MODULE_NOT_FOUND);
     process.exit(1);
@@ -75,21 +76,30 @@ function wrapper(my) {
 
     return function mod(req,res,next) {
 
+        /**
+         * next callback. (closure)
+         * 
+         * @function end
+         */
+        function end() {
+
+            return my.serve(req,res,next);
+        }
         if (my.strictMethod) {
             if ('GET' != req.method && 'HEAD' != req.method) {
-                return next();
+                return end();
             }
         }
         var original = url(req.originalUrl || req.url).pathname;
         var prova = my.root + original;
 
-        fs.stat(prova,function(e,stats) {
+        fs.stat(prova,function(err,stats) {
 
-            if (e) {
-                return next();
+            if (err) {
+                return end();
             }
             if (!stats.isDirectory()) {
-                return next();
+                return end();
             }
 
             var head = header;
@@ -100,7 +110,7 @@ function wrapper(my) {
             fs.readdir(prova,function(err,files) {
 
                 if (err) {
-                    return next();
+                    return end();
                 }
 
                 var f = '';
@@ -176,18 +186,20 @@ module.exports = function index(root,options) {
     if (!fs.lstatSync(root).isDirectory()) {
         throw new Error('path is not a directory');
     }
+    var r = resolve(root);
     if (root[root.length - 1] == '/') {
-        var root = root.substr(0,root.length - 1);
+        r = root.substr(0,root.length - 1);
     }
 
     var options = options || Object.create(null);
     var my = {
-        root: root,
+        root: r,
         exclude: options.exclude || false,
         date: options.date == false ? false : true,
         size: options.size == false ? false : true,
         priority: options.priority == false ? false : true,
-        strictMethod: Boolean(options.strictMethod)
+        strictMethod: Boolean(options.strictMethod),
+        serve: serve(r,options.static)
     };
 
     return wrapper(my);

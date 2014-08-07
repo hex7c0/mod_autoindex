@@ -28,7 +28,7 @@ var app = express();
 app.use(index(DIR));
 
 // download file
-app.use(express.static(DIR));
+// app.use(express.static(DIR)); // implemented
 
 // server starting
 app.listen(3000);
