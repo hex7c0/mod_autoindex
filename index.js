@@ -4,7 +4,7 @@
  * @module mod_autoindex
  * @package mod_autoindex
  * @subpackage main
- * @version 1.1.0
+ * @version 1.2.1
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -90,21 +90,19 @@ function wrapper(my) {
                 return end();
             }
         }
-        var original = url(req.originalUrl || req.url).pathname;
-        var prova = my.root + original;
+        var path = url(req.url);
+        path = path.pathname || path.href;
+        var prova = my.root + path;
 
         fs.stat(prova,function(err,stats) {
 
-            if (err) {
-                return end();
-            }
-            if (!stats.isDirectory()) {
+            if (err || !stats.isDirectory()) {
                 return end();
             }
 
             var head = header;
-            head = head.replace(/{{path}}/g,original);
-            if (original != '/') {
+            head = head.replace(/{{path}}/g,path);
+            if (path != '/') {
                 head += '<a href="../">../</a>\n';
             }
             fs.readdir(prova,function(err,files) {
@@ -183,7 +181,7 @@ module.exports = function index(root,options) {
     if (!fs.existsSync(root)) {
         throw new Error('path not exists');
     }
-    if (!fs.lstatSync(root).isDirectory()) {
+    if (!fs.statSync(root).isDirectory()) {
         throw new Error('path is not a directory');
     }
     var r = resolve(root);
