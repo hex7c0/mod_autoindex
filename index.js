@@ -83,12 +83,10 @@ function wrapper(my) {
          */
         function end() {
 
-            return my.serve(req,res,next);
+            return my.static(req,res,next);
         }
-        if (my.strictMethod) {
-            if ('GET' != req.method && 'HEAD' != req.method) {
-                return end();
-            }
+        if (my.strictMethod && 'GET' != req.method && 'HEAD' != req.method) {
+            return end();
         }
         var path = url(req.url);
         path = path.pathname || path.href;
@@ -96,7 +94,7 @@ function wrapper(my) {
 
         fs.stat(prova,function(err,stats) {
 
-            if (err || !stats.isDirectory()) {
+            if (!stats.isDirectory() || err) {
                 return end();
             }
 
@@ -117,17 +115,21 @@ function wrapper(my) {
                     if (my.exclude && my.exclude.test(file)) {
                         return;
                     }
+                    if (my.dotfiles && file[0] == '.') {
+                        return;
+                    }
+
                     var h;
                     var size;
                     var ss = fs.statSync(prova + '/' + file);
                     var d = new Date(ss.mtime);
                     if (ss.isDirectory()) {
                         size = '-';
-                        h = '<a href="' + file + '/">' + file + '</a>';
+                        file += '/';
                     } else {
                         size = String(ss.size);
-                        h = '<a href="' + file + '">' + file + '</a>';
                     }
+                    h = '<a href="' + file + '">' + file + '</a>';
                     h += multiple(file.length,50);
                     if (my.date) {
                         h += pad(d.getDate()) + '-' + month[d.getMonth()] + '-'
@@ -193,12 +195,15 @@ module.exports = function index(root,options) {
     var my = {
         root: r,
         exclude: options.exclude || false,
+        dotfiles: options.dotfiles == false ? false : true,
         date: options.date == false ? false : true,
         size: options.size == false ? false : true,
         priority: options.priority == false ? false : true,
         strictMethod: Boolean(options.strictMethod),
-        serve: serve(r,options.static)
-    };
+        static: options.static == false ? function() {
 
+            return;
+        } : serve(r,options.static)
+    };
     return wrapper(my);
 };
