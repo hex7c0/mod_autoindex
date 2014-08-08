@@ -31,22 +31,22 @@ inside expressjs project
 var index = require('mod_autoindex');
 var express = require('express');
 var app = express();
-var DIR = __dirname + '/..';
 
 // index
-app.use(index(DIR));
+app.use(index(__dirname));
 ```
 
 ### index(root,[options])
 
  - `root` - **String** Index given root directory *(default "required")*
  - `options` - **Object** Customization
-  - `exclude` - **RegExp** Regular expression for exclude files/dirs *(default "disabled")*
-  - `date` - **Boolean** Flag for info modification time *(default "enabled")*
-  - `size` - **Boolean** Flag for info files size *(default "enabled")*
-  - `priority` - **Boolean** Flag for dirs priority *(default "enabled")*
+  - `exclude` - **RegExp** Regular expression for files/dirs exclude *(default "disabled")*
+  - `dotfiles`- **Boolean** Flag for hide dotfiles *(default "enabled")*
+  - `date` - **Boolean** Flag for display modification time *(default "enabled")*
+  - `size` - **Boolean** Flag for display files size *(default "enabled")*
+  - `priority` - **Boolean** Flag for display dirs before files *(default "enabled")*
   - `strictMethod` - **Boolean** Flag for check "HEAD" and "GET" HTTP methods *(default "disabled")*
-  - `static` - **Object** Options for [serve-static](https://github.com/expressjs/serve-static) *(default "null")*
+  - `static` - **Object | false** Options for [serve-static](https://github.com/expressjs/serve-static) or disable support (if you use static server like nginx) *(default "null")*
 
 #### Examples
 
