@@ -4,7 +4,7 @@
  * @module mod_autoindex
  * @package mod_autoindex
  * @subpackage main
- * @version 1.2.1
+ * @version 1.3.1
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -94,7 +94,7 @@ function wrapper(my) {
 
         fs.stat(prova,function(err,stats) {
 
-            if (!stats.isDirectory() || err) {
+            if (err || !stats.isDirectory()) {
                 return end();
             }
 
