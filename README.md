@@ -35,9 +35,6 @@ var DIR = __dirname + '/..';
 
 // index
 app.use(index(DIR));
-
-// file download
-app.use(express.static(DIR));
 ```
 
 ### index(root,[options])
