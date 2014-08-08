@@ -94,7 +94,10 @@ function wrapper(my) {
 
         fs.stat(prova,function(err,stats) {
 
-            if (err || !stats.isDirectory()) {
+            if (err) {
+                return end();
+            }
+            if (!stats.isDirectory()) {
                 return end();
             }
 
