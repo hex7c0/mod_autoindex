@@ -31,7 +31,7 @@ var app = require('express')();
 app.use(autoindex(__dirname));
 ```
 
-### index(root,[options])
+### autoindex(root,[options])
 
 #### root
 
