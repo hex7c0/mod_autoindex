@@ -25,7 +25,10 @@ var DIR = __dirname + '/..';
 var app = express();
 
 // index
-app.use(index(DIR));
+app.use(index(DIR,{
+    static: false,
+    dotfiles: false
+}));
 
 // download file
 // app.use(express.static(DIR)); // implemented

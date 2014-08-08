@@ -1,3 +1,9 @@
+1.3.0 / 2014-08-08
+==================
+
+  * Add "dotfiles" (options)
+  * Chance to disable `serve-static` (if you use static server like nginx)
+
 1.2.1 / 2014-08-07
 ==================
 
