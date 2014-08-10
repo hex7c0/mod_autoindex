@@ -88,15 +88,41 @@ function wrapper(my) {
     }
 
     /**
+     * next callback
+     * 
+     * @function end
+     * @param {Object} res - response to client
+     * @param {Object|String} head - header
+     * @param {String} after - post header
+     * @param {String} path - dir path
+     * @param {Object} stat - path stat
+     */
+    function output(res,head,after,path,stat) {
+
+        if (my.json) {
+            res.send(head);
+            STORY.body = head;
+        }
+        res.send(head + after + footer);
+        if (my.cache) {
+            STORY.body = head + after + footer;
+            STORY.path = path;
+            STORY.mtime = stat.mtime.getTime();
+        }
+        return;
+    }
+
+    /**
      * json builder
      * 
      * @function json
      * @param {Object} head - header
+     * @param {String} after - post header
      * @param {String} file - file name
      * @param {Object} stats - stats of file
-     * @return {Object}
+     * @return {Array}
      */
-    function json(head,file,stats) {
+    function json(head,after,file,stats) {
 
         var size;
         var fil = file;
@@ -117,7 +143,7 @@ function wrapper(my) {
         if (my.size) {
             head[fil].size = size;
         }
-        return head;
+        return [head,after];
     }
 
     /**
@@ -168,30 +194,38 @@ function wrapper(my) {
         return [hea,afte];
     }
 
-    if (my.sync) {
+    var STORY = Object.create(null);
+    var build = html;
+    if (my.json) {
+        build = json;
+    }
 
+    // start sync
+    if (my.sync) {
         /**
          * body
          * 
-         * @function mod
+         * @function mod_sync
          * @param {Object} req - client request
          * @param {Object} res - response to client
          * @param {next} next - next callback
          */
-        return function mod(req,res,next) {
+        return function mod_sync(req,res,next) {
 
             if (my.strictMethod && 'GET' != req.method && 'HEAD' != req.method) {
                 return end(req,res,next);
             }
             var path = parse(req).pathname;
             var prova = my.root + path;
-
-            var stats = fs.statSync(prova);
-            if (stats) {
-                if (!stats.isDirectory()) {
+            var stat = fs.statSync(prova);
+            if (stat) {
+                if (STORY.mtime && STORY.mtime == stat.mtime.getTime()
+                        && STORY.path == prova) {
+                    return res.send(STORY.body);
+                }
+                if (!stat.isDirectory()) {
                     return end(req,res,next);
                 }
-
                 var head;
                 if (my.json) {
                     head = Object.create(null);
@@ -204,7 +238,6 @@ function wrapper(my) {
                 }
                 var files = fs.readdirSync(prova);
                 if (files) {
-
                     var after = '';
                     files.forEach(function(file) {
 
@@ -214,58 +247,53 @@ function wrapper(my) {
                         if (my.dotfiles && file[0] == '.') {
                             return;
                         }
-
                         var stats = fs.statSync(prova + '/' + file);
                         if (stats) {
-                            if (my.json) {
-                                head = json(head,file,stats);
-                            } else {
-                                var r = html(head,after,file,stats);
-                                head = r[0];
-                                after = r[1];
-                            }
+                            var r = build(head,after,file,stats);
+                            head = r[0];
+                            after = r[1];
                         }
                         return;
                     });
 
-                    if (my.json) {
-                        return res.send(head);
-                    }
-                    head += after;
-                    return res.send(head + footer);
+                    return output(res,head,after,prova,stat);
+
                 }
             }
             return end(req,res,next);
 
         };
-
     }
+    // end sync
 
+    // start callback
     /**
      * body
      * 
-     * @function mod
+     * @function mod_callback
      * @param {Object} req - client request
      * @param {Object} res - response to client
      * @param {next} next - next callback
      */
-    return function mod(req,res,next) {
+    return function mod_callback(req,res,next) {
 
         if (my.strictMethod && 'GET' != req.method && 'HEAD' != req.method) {
             return end(req,res,next);
         }
         var path = parse(req).pathname;
         var prova = my.root + path;
-
-        fs.stat(prova,function(err,stats) {
+        fs.stat(prova,function(err,stat) {
 
             if (err) {
                 return end(req,res,next);
             }
-            if (!stats.isDirectory()) {
+            if (STORY.mtime && STORY.mtime == stat.mtime.getTime()
+                    && STORY.path == prova) {
+                return res.send(STORY.body);
+            }
+            if (!stat.isDirectory()) {
                 return end(req,res,next);
             }
-
             var head;
             if (my.json) {
                 head = Object.create(null);
@@ -281,52 +309,32 @@ function wrapper(my) {
                 if (err) {
                     return end(req,res,next);
                 }
-
                 var after = '';
                 var cc = files.length;
                 files.forEach(function(file) {
 
                     if (my.exclude && my.exclude.test(file)) {
                         if (cc-- == 1) {
-                            if (my.json) {
-                                return res.send(head);
-                            }
-                            head += after;
-                            return res.send(head + footer);
+                            return output(res,head,after,prova,stat);
                         }
                         return;
                     }
                     if (my.dotfiles && file[0] == '.') {
                         if (cc-- == 1) {
-                            if (my.json) {
-                                return res.send(head);
-                            }
-                            head += after;
-                            return res.send(head + footer);
+                            return output(res,head,after,prova,stat);
                         }
                         return;
                     }
-
                     fs.stat(prova + '/' + file,function(err,stats) {
 
                         if (err) {
                             return end(req,res,next);
                         }
-
-                        if (my.json) {
-                            head = json(head,file,stats);
-                        } else {
-                            var r = html(head,after,file,stats);
-                            head = r[0];
-                            after = r[1];
-                        }
-
+                        var r = build(head,after,file,stats);
+                        head = r[0];
+                        after = r[1];
                         if (cc-- == 1) {
-                            if (my.json) {
-                                return res.send(head);
-                            }
-                            head += after;
-                            return res.send(head + footer);
+                            return output(res,head,after,prova,stat);
                         }
                         return;
                     });
@@ -339,9 +347,10 @@ function wrapper(my) {
 
             return;
         });
-        return;
 
+        return;
     };
+    // end callback
 
 }
 
@@ -369,7 +378,6 @@ module.exports = function index(root,options) {
     if (root[root.length - 1] == '/') {
         r = root.substr(0,root.length - 1);
     }
-
     var options = options || Object.create(null);
     var my = {
         root: r,
@@ -381,6 +389,7 @@ module.exports = function index(root,options) {
         strictMethod: Boolean(options.strictMethod),
         sync: Boolean(options.sync),
         json: Boolean(options.json),
+        cache: options.cache == false ? false : true,
         static: options.static == false ? function end(req,res,next) {
 
             return next();
