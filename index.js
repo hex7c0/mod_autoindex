@@ -124,6 +124,7 @@ function wrapper(my) {
                 }
 
                 var f = '';
+                var cc = files.length;
                 files.forEach(function(file) {
 
                     if (my.exclude && my.exclude.test(file)) {
@@ -133,43 +134,55 @@ function wrapper(my) {
                         return;
                     }
 
-                    var h;
-                    var size;
-                    var ss = fs.statSync(prova + '/' + file);
-                    var d = new Date(ss.mtime);
-                    if (ss.isDirectory()) {
-                        size = '-';
-                        file += '/';
-                    } else {
-                        size = String(ss.size);
-                    }
-                    h = '<a href="' + file + '">' + file + '</a>';
-                    h += multiple(file.length,50);
-                    if (my.date) {
-                        h += pad(d.getDate()) + '-' + month[d.getMonth()] + '-'
-                                + d.getFullYear();
-                        h += ' ' + pad(d.getHours()) + ':'
-                                + pad(d.getMinutes());
-                        h += multiple(size.length,20);
-                    }
-                    if (my.size) {
-                        h += size;
-                    }
-                    h += '\n';
-                    if (my.priority) {
-                        if (size == '-') {
-                            head += h;
-                        } else {
-                            f += h;
+                    fs.stat(prova + '/' + file,function(err,stats) {
+
+                        if (err) {
+                            return end(req,res,next);
                         }
-                    } else {
-                        head += h;
-                    }
+
+                        var h;
+                        var size;
+                        var fil = file;
+                        var d = new Date(stats.mtime);
+                        if (stats.isDirectory()) {
+                            size = '-';
+                            fil += '/';
+                        } else {
+                            size = String(stats.size);
+                        }
+                        h = '<a href="' + fil + '">' + fil + '</a>';
+                        h += multiple(fil.length,50);
+                        if (my.date) {
+                            h += pad(d.getDate()) + '-' + month[d.getMonth()]
+                                    + '-' + d.getFullYear();
+                            h += ' ' + pad(d.getHours()) + ':'
+                                    + pad(d.getMinutes());
+                            h += multiple(size.length,20);
+                        }
+                        if (my.size) {
+                            h += size;
+                        }
+                        h += '\n';
+                        if (my.priority) {
+                            if (size == '-') {
+                                head += h;
+                            } else {
+                                f += h;
+                            }
+                        } else {
+                            head += h;
+                        }
+
+                        if (cc-- == 1) {
+                            head += f;
+                            res.send(head + footer);
+                        }
+                        return;
+                    });
+
                     return;
                 });
 
-                head += f;
-                res.send(head + footer);
                 return;
             });
 
