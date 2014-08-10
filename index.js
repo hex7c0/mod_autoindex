@@ -88,6 +88,160 @@ function wrapper(my) {
     }
 
     /**
+     * json builder
+     * 
+     * @function json
+     * @param {Object} head - header
+     * @param {String} file - file name
+     * @param {Object} stats - stats of file
+     * @return {Object}
+     */
+    function json(head,file,stats) {
+
+        var size;
+        var fil = file;
+        if (stats.isDirectory()) {
+            size = '-';
+            fil += '/';
+        } else {
+            size = String(stats.size);
+        }
+        head[fil] = Object.create(null);
+        if (my.date) {
+            var d = new Date(stats.mtime);
+            var h = pad(d.getDate()) + '-' + month[d.getMonth()] + '-'
+                    + d.getFullYear();
+            h += ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+            head[fil].date = h;
+        }
+        if (my.size) {
+            head[fil].size = size;
+        }
+        return head;
+    }
+
+    /**
+     * html builder
+     * 
+     * @function html
+     * @param {String} head - header
+     * @param {String} after - post header
+     * @param {String} file - file name
+     * @param {Object} stats - stats of file
+     * @return {Array}
+     */
+    function html(head,after,file,stats) {
+
+        var h;
+        var size;
+        var hea = head;
+        var afte = after;
+        var fil = file;
+        if (stats.isDirectory()) {
+            size = '-';
+            fil += '/';
+        } else {
+            size = String(stats.size);
+        }
+        h = '<a href="' + fil + '">' + fil + '</a>';
+        h += multiple(fil.length,50);
+        if (my.date) {
+            var d = new Date(stats.mtime);
+            h += pad(d.getDate()) + '-' + month[d.getMonth()] + '-'
+                    + d.getFullYear();
+            h += ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+            h += multiple(size.length,20);
+        }
+        if (my.size) {
+            h += size;
+        }
+        h += '\n';
+        if (my.priority) {
+            if (size == '-') {
+                hea += h;
+            } else {
+                afte += h;
+            }
+        } else {
+            hea += h;
+        }
+        return [hea,afte];
+    }
+
+    if (my.sync) {
+
+        /**
+         * body
+         * 
+         * @function mod
+         * @param {Object} req - client request
+         * @param {Object} res - response to client
+         * @param {next} next - next callback
+         */
+        return function mod(req,res,next) {
+
+            if (my.strictMethod && 'GET' != req.method && 'HEAD' != req.method) {
+                return end(req,res,next);
+            }
+            var path = parse(req).pathname;
+            var prova = my.root + path;
+
+            var stats = fs.statSync(prova);
+            if (stats) {
+                if (!stats.isDirectory()) {
+                    return end(req,res,next);
+                }
+
+                var head;
+                if (my.json) {
+                    head = Object.create(null);
+                } else {
+                    head = header;
+                    head = head.replace(/{{path}}/g,path);
+                    if (path != '/') {
+                        head += '<a href="../">../</a>\n';
+                    }
+                }
+                var files = fs.readdirSync(prova);
+                if (files) {
+
+                    var after = '';
+                    files.forEach(function(file) {
+
+                        if (my.exclude && my.exclude.test(file)) {
+                            return;
+                        }
+                        if (my.dotfiles && file[0] == '.') {
+                            return;
+                        }
+
+                        var stats = fs.statSync(prova + '/' + file);
+                        if (stats) {
+                            if (my.json) {
+                                head = json(head,file,stats);
+                            } else {
+                                var r = html(head,after,file,stats);
+                                head = r[0];
+                                after = r[1];
+                            }
+                        }
+                        return;
+                    });
+
+                    if (my.json) {
+                        return res.send(head);
+                    }
+                    head += after;
+                    return res.send(head + footer);
+                }
+            }
+            return end(req,res,next);
+
+        };
+
+    }
+
+    /**
      * body
      * 
      * @function mod
@@ -112,10 +266,15 @@ function wrapper(my) {
                 return end(req,res,next);
             }
 
-            var head = header;
-            head = head.replace(/{{path}}/g,path);
-            if (path != '/') {
-                head += '<a href="../">../</a>\n';
+            var head;
+            if (my.json) {
+                head = Object.create(null);
+            } else {
+                head = header;
+                head = head.replace(/{{path}}/g,path);
+                if (path != '/') {
+                    head += '<a href="../">../</a>\n';
+                }
             }
             fs.readdir(prova,function(err,files) {
 
@@ -123,14 +282,28 @@ function wrapper(my) {
                     return end(req,res,next);
                 }
 
-                var f = '';
+                var after = '';
                 var cc = files.length;
                 files.forEach(function(file) {
 
                     if (my.exclude && my.exclude.test(file)) {
+                        if (cc-- == 1) {
+                            if (my.json) {
+                                return res.send(head);
+                            }
+                            head += after;
+                            return res.send(head + footer);
+                        }
                         return;
                     }
                     if (my.dotfiles && file[0] == '.') {
+                        if (cc-- == 1) {
+                            if (my.json) {
+                                return res.send(head);
+                            }
+                            head += after;
+                            return res.send(head + footer);
+                        }
                         return;
                     }
 
@@ -140,42 +313,20 @@ function wrapper(my) {
                             return end(req,res,next);
                         }
 
-                        var h;
-                        var size;
-                        var fil = file;
-                        var d = new Date(stats.mtime);
-                        if (stats.isDirectory()) {
-                            size = '-';
-                            fil += '/';
+                        if (my.json) {
+                            head = json(head,file,stats);
                         } else {
-                            size = String(stats.size);
-                        }
-                        h = '<a href="' + fil + '">' + fil + '</a>';
-                        h += multiple(fil.length,50);
-                        if (my.date) {
-                            h += pad(d.getDate()) + '-' + month[d.getMonth()]
-                                    + '-' + d.getFullYear();
-                            h += ' ' + pad(d.getHours()) + ':'
-                                    + pad(d.getMinutes());
-                            h += multiple(size.length,20);
-                        }
-                        if (my.size) {
-                            h += size;
-                        }
-                        h += '\n';
-                        if (my.priority) {
-                            if (size == '-') {
-                                head += h;
-                            } else {
-                                f += h;
-                            }
-                        } else {
-                            head += h;
+                            var r = html(head,after,file,stats);
+                            head = r[0];
+                            after = r[1];
                         }
 
                         if (cc-- == 1) {
-                            head += f;
-                            res.send(head + footer);
+                            if (my.json) {
+                                return res.send(head);
+                            }
+                            head += after;
+                            return res.send(head + footer);
                         }
                         return;
                     });
@@ -188,9 +339,10 @@ function wrapper(my) {
 
             return;
         });
-
         return;
+
     };
+
 }
 
 /**
@@ -227,6 +379,8 @@ module.exports = function index(root,options) {
         size: options.size == false ? false : true,
         priority: options.priority == false ? false : true,
         strictMethod: Boolean(options.strictMethod),
+        sync: Boolean(options.sync),
+        json: Boolean(options.json),
         static: options.static == false ? function end(req,res,next) {
 
             return next();
