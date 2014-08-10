@@ -4,7 +4,7 @@
  * @module mod_autoindex
  * @package mod_autoindex
  * @subpackage main
- * @version 1.3.1
+ * @version 1.3.2
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -17,12 +17,17 @@
 try {
     var fs = require('fs');
     var resolve = require('path').resolve;
-    var url = require('url').parse;
+    var parse = require('parseurl');
     var serve = require('serve-static');
 } catch (MODULE_NOT_FOUND) {
     console.error(MODULE_NOT_FOUND);
     process.exit(1);
 }
+// load
+var header = '<html>\n<head><title>Index of {{path}}</title></head>\n<body bgcolor="white">\n<h1>Index of {{path}}</h1><hr><pre>\n';
+var footer = '</pre><hr></body>\n</html>\n';
+var month = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov',
+        'Dec'];
 
 /*
  * functions
@@ -69,36 +74,42 @@ function pad(num) {
  */
 function wrapper(my) {
 
-    var header = '<html>\n<head><title>Index of {{path}}</title></head>\n<body bgcolor="white">\n<h1>Index of {{path}}</h1><hr><pre>\n';
-    var footer = '</pre><hr></body>\n</html>\n';
-    var month = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct',
-            'Nov','Dec'];
+    /**
+     * next callback
+     * 
+     * @function end
+     * @param {Object} req - client request
+     * @param {Object} res - response to client
+     * @param {next} next - next callback
+     */
+    function end(req,res,next) {
 
+        return my.static(req,res,next);
+    }
+
+    /**
+     * body
+     * 
+     * @function mod
+     * @param {Object} req - client request
+     * @param {Object} res - response to client
+     * @param {next} next - next callback
+     */
     return function mod(req,res,next) {
 
-        /**
-         * next callback. (closure)
-         * 
-         * @function end
-         */
-        function end() {
-
-            return my.static(req,res,next);
-        }
         if (my.strictMethod && 'GET' != req.method && 'HEAD' != req.method) {
-            return end();
+            return end(req,res,next);
         }
-        var path = url(req.url);
-        path = path.pathname || path.href;
+        var path = parse(req).pathname;
         var prova = my.root + path;
 
         fs.stat(prova,function(err,stats) {
 
             if (err) {
-                return end();
+                return end(req,res,next);
             }
             if (!stats.isDirectory()) {
-                return end();
+                return end(req,res,next);
             }
 
             var head = header;
@@ -109,7 +120,7 @@ function wrapper(my) {
             fs.readdir(prova,function(err,files) {
 
                 if (err) {
-                    return end();
+                    return end(req,res,next);
                 }
 
                 var f = '';
@@ -203,9 +214,9 @@ module.exports = function index(root,options) {
         size: options.size == false ? false : true,
         priority: options.priority == false ? false : true,
         strictMethod: Boolean(options.strictMethod),
-        static: options.static == false ? function() {
+        static: options.static == false ? function end(req,res,next) {
 
-            return;
+            return next();
         } : serve(r,options.static)
     };
     return wrapper(my);
