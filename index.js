@@ -100,11 +100,13 @@ function wrapper(my) {
     function output(res,head,after,path,stat) {
 
         if (my.json) {
+            head = JSON.stringify(head);
             res.end(head);
             STORY.body = head;
         } else {
-            res.end(head + after + footer);
-            STORY.body = head + after + footer;
+            head += after + footer;
+            res.end(head);
+            STORY.body = head;
         }
         if (my.cache) {
             STORY.path = path;
