@@ -44,7 +44,10 @@ app.use(autoindex(__dirname));
  - `date` - **Boolean** Flag for display modification time *(default "enabled")*
  - `size` - **Boolean** Flag for display files size *(default "enabled")*
  - `priority` - **Boolean** Flag for display dirs before files *(default "enabled")*
+ - `cache` - **Boolean** Flag for using cache (depends from mtime dir) *(default "enabled")*
  - `strictMethod` - **Boolean** Flag for check "HEAD" and "GET" HTTP methods *(default "disabled")*
+ - `sync` - **Boolean** Flag for using "Sync" methods instead of callback only *(default "disabled")*
+ - `json` - **Boolean** Flag for display json output instead of html only *(default "disabled")*
  - `static` - **Object | false** Options for [serve-static](https://github.com/expressjs/serve-static) or disable support (if you use static server like nginx) *(default "null")*
 
 ## Examples

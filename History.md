@@ -1,3 +1,12 @@
+1.4.0 / 2014-08-11
+==================
+
+  * Add "sync" (options)
+  * Add "json" (options)
+  * Add "cache" (options)
+  * Full callback work for "callback" option
+  * Using `parseurl`@1.3.0 instead of `url.parse`
+
 1.3.1 / 2014-08-08
 ==================
 
