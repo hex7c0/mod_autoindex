@@ -1,11 +1,12 @@
 {
   "version": "1.4.0",
   "name": "mod_autoindex",
-  "description": "generates directory indexes, automatically, similar to the Unix `ls` command or the Win32 `dir` shell command",
+  "description": "generates directory indexes, automatically, with memoization",
   "keywords": [
     "index",
     "autoindex",
-    "static"
+    "static",
+    "ls"
   ],
   "preferGlobal": false,
   "homepage": "http://supergiovane.tk/#/mod_autoindex",

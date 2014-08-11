@@ -4,7 +4,7 @@
 [![Build Status](https://travis-ci.org/hex7c0/mod_autoindex.svg?branch=master)](https://travis-ci.org/hex7c0/mod_autoindex)
 [![devDependency Status](https://david-dm.org/hex7c0/mod_autoindex/dev-status.svg)](https://david-dm.org/hex7c0/mod_autoindex#info=devDependencies)
 
-Generates directory indexes, automatically, similar to the Unix `ls` command or the Win32 `dir` shell command.
+Generates directory indexes, automatically, similar to the Unix `ls` command or the Win32 `dir` shell command; with memoization.
 In combination with [serve-static](https://github.com/expressjs/serve-static).
 
 Display index of given root directory, like https://code.angularjs.org/1.3.0-beta.17/ or `apache2 mod_autoindex`
