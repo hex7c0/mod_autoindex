@@ -31,7 +31,7 @@
  * @module mod_autoindex
  * @package mod_autoindex
  * @subpackage main
- * @version 1.2.1
+ * @version 1.3.2
  * @author hex7c0 &lt;hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -44,12 +44,17 @@
 try {
     var fs = require('fs');
     var resolve = require('path').resolve;
-    var url = require('url').parse;
+    var parse = require('parseurl');
     var serve = require('serve-static');
 } catch (MODULE_NOT_FOUND) {
     console.error(MODULE_NOT_FOUND);
     process.exit(1);
 }
+// load
+var header = '&lt;html>\n&lt;head>&lt;title>Index of {{path}}&lt;/title>&lt;/head>\n&lt;body bgcolor="white">\n&lt;h1>Index of {{path}}&lt;/h1>&lt;hr>&lt;pre>\n';
+var footer = '&lt;/pre>&lt;hr>&lt;/body>\n&lt;/html>\n';
+var month = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov',
+        'Dec'];
 
 /*
  * functions
@@ -96,93 +101,276 @@ function pad(num) {
  */
 function wrapper(my) {
 
-    var header = '&lt;html>\n&lt;head>&lt;title>Index of {{path}}&lt;/title>&lt;/head>\n&lt;body bgcolor="white">\n&lt;h1>Index of {{path}}&lt;/h1>&lt;hr>&lt;pre>\n';
-    var footer = '&lt;/pre>&lt;hr>&lt;/body>\n&lt;/html>\n';
-    var month = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct',
-            'Nov','Dec'];
+    /**
+     * next callback
+     * 
+     * @function end
+     * @param {Object} req - client request
+     * @param {Object} res - response to client
+     * @param {next} next - next callback
+     */
+    function end(req,res,next) {
 
-    return function mod(req,res,next) {
+        return my.static(req,res,next);
+    }
 
-        /**
-         * next callback. (closure)
-         * 
-         * @function end
-         */
-        function end() {
+    /**
+     * next callback
+     * 
+     * @function end
+     * @param {Object} res - response to client
+     * @param {Object|String} head - header
+     * @param {String} after - post header
+     * @param {String} path - dir path
+     * @param {Object} stat - path stat
+     */
+    function output(res,head,after,path,stat) {
 
-            return my.static(req,res,next);
+        if (my.json) {
+            res.end(head);
+            STORY.body = head;
+        } else {
+            res.end(head + after + footer);
+            STORY.body = head + after + footer;
         }
-        if (my.strictMethod &amp;&amp; 'GET' != req.method &amp;&amp; 'HEAD' != req.method) {
-            return end();
+        if (my.cache) {
+            STORY.path = path;
+            STORY.mtime = stat.mtime.getTime();
         }
-        var path = url(req.url);
-        path = path.pathname || path.href;
-        var prova = my.root + path;
+        return;
+    }
 
-        fs.stat(prova,function(err,stats) {
+    /**
+     * json builder
+     * 
+     * @function json
+     * @param {Object} head - header
+     * @param {String} after - post header
+     * @param {String} file - file name
+     * @param {Object} stats - stats of file
+     * @return {Array}
+     */
+    function json(head,after,file,stats) {
 
-            if (!stats.isDirectory() || err) {
-                return end();
+        var size;
+        var fil = file;
+        if (stats.isDirectory()) {
+            size = '-';
+            fil += '/';
+        } else {
+            size = String(stats.size);
+        }
+        head[fil] = Object.create(null);
+        if (my.date) {
+            var d = new Date(stats.mtime);
+            var h = pad(d.getDate()) + '-' + month[d.getMonth()] + '-'
+                    + d.getFullYear();
+            h += ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+            head[fil].mtime = h;
+        }
+        if (my.size) {
+            head[fil].size = size;
+        }
+        return [head,null];
+    }
+
+    /**
+     * html builder
+     * 
+     * @function html
+     * @param {String} head - header
+     * @param {String} after - post header
+     * @param {String} file - file name
+     * @param {Object} stats - stats of file
+     * @return {Array}
+     */
+    function html(head,after,file,stats) {
+
+        var h;
+        var size;
+        var hea = head;
+        var afte = after;
+        var fil = file;
+        if (stats.isDirectory()) {
+            size = '-';
+            fil += '/';
+        } else {
+            size = String(stats.size);
+        }
+        h = '&lt;a href="' + fil + '">' + fil + '&lt;/a>';
+        h += multiple(fil.length,50);
+        if (my.date) {
+            var d = new Date(stats.mtime);
+            h += pad(d.getDate()) + '-' + month[d.getMonth()] + '-'
+                    + d.getFullYear();
+            h += ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+            h += multiple(size.length,20);
+        }
+        if (my.size) {
+            h += size;
+        }
+        h += '\n';
+        if (my.priority) {
+            if (size == '-') {
+                hea += h;
+            } else {
+                afte += h;
             }
+        } else {
+            hea += h;
+        }
+        return [hea,afte];
+    }
 
-            var head = header;
-            head = head.replace(/{{path}}/g,path);
-            if (path != '/') {
-                head += '&lt;a href="../">../&lt;/a>\n';
+    var STORY = Object.create(null);
+    var build = html;
+    if (my.json) {
+        build = json;
+    }
+
+    // start sync
+    if (my.sync) {
+        /**
+         * body
+         * 
+         * @function mod_sync
+         * @param {Object} req - client request
+         * @param {Object} res - response to client
+         * @param {next} next - next callback
+         */
+        return function mod_sync(req,res,next) {
+
+            if (my.strictMethod &amp;&amp; 'GET' != req.method &amp;&amp; 'HEAD' != req.method) {
+                return end(req,res,next);
+            }
+            var path = parse(req).pathname;
+            var prova = my.root + path;
+            var stat = fs.statSync(prova);
+            if (stat) {
+                if (STORY.mtime &amp;&amp; STORY.mtime == stat.mtime.getTime()
+                        &amp;&amp; STORY.path == prova) {
+                    return res.end(STORY.body);
+                }
+                if (!stat.isDirectory()) {
+                    return end(req,res,next);
+                }
+                var head;
+                if (my.json) {
+                    head = Object.create(null);
+                } else {
+                    head = header;
+                    head = head.replace(/{{path}}/g,path);
+                    if (path != '/') {
+                        head += '&lt;a href="../">../&lt;/a>\n';
+                    }
+                }
+                var files = fs.readdirSync(prova);
+                if (files) {
+                    var after = '';
+                    for (var i = 0, ii = files.length; i &lt; ii; i++) {
+
+                        var file = files[i];
+                        if (my.exclude &amp;&amp; my.exclude.test(file)) {
+                            return;
+                        }
+                        if (my.dotfiles &amp;&amp; file[0] == '.') {
+                            return;
+                        }
+                        var stats = fs.statSync(prova + '/' + file);
+                        if (stats) {
+                            var r = build(head,after,file,stats);
+                            head = r[0];
+                            after = r[1];
+                        }
+                    }
+                    return output(res,head,after,prova,stat);
+
+                }
+            }
+            return end(req,res,next);
+
+        };
+    }
+    // end sync
+
+    // start callback
+    /**
+     * body
+     * 
+     * @function mod_callback
+     * @param {Object} req - client request
+     * @param {Object} res - response to client
+     * @param {next} next - next callback
+     */
+    return function mod_callback(req,res,next) {
+
+        if (my.strictMethod &amp;&amp; 'GET' != req.method &amp;&amp; 'HEAD' != req.method) {
+            return end(req,res,next);
+        }
+        var path = parse(req).pathname;
+        var prova = my.root + path;
+        fs.stat(prova,function(err,stat) {
+
+            if (err) {
+                return end(req,res,next);
+            }
+            if (STORY.mtime &amp;&amp; STORY.mtime == stat.mtime.getTime()
+                    &amp;&amp; STORY.path == prova) {
+                return res.end(STORY.body);
+            }
+            if (!stat.isDirectory()) {
+                return end(req,res,next);
+            }
+            var head;
+            if (my.json) {
+                head = Object.create(null);
+            } else {
+                head = header;
+                head = head.replace(/{{path}}/g,path);
+                if (path != '/') {
+                    head += '&lt;a href="../">../&lt;/a>\n';
+                }
             }
             fs.readdir(prova,function(err,files) {
 
                 if (err) {
-                    return end();
+                    return end(req,res,next);
+                }
+                var after = '';
+                var cc = files.length - 1;
+                for (var i = 0, ii = files.length; i &lt; ii; i++) {
+                    !function(file) {
+
+                        if (my.exclude &amp;&amp; my.exclude.test(file)) {
+                            if (!cc--) {
+                                return output(res,head,after,prova,stat);
+                            }
+                            return;
+                        }
+                        if (my.dotfiles &amp;&amp; file[0] == '.') {
+                            if (!cc--) {
+                                return output(res,head,after,prova,stat);
+                            }
+                            return;
+                        }
+                        fs.stat(prova + '/' + file,function(err,stats) {
+
+                            if (err) {
+                                return end(req,res,next);
+                            }
+                            var r = build(head,after,file,stats);
+                            head = r[0];
+                            after = r[1];
+                            if (!cc--) {
+                                return output(res,head,after,prova,stat);
+                            }
+                            return;
+                        });
+
+                        return;
+                    }(files[i]);
                 }
 
-                var f = '';
-                files.forEach(function(file) {
-
-                    if (my.exclude &amp;&amp; my.exclude.test(file)) {
-                        return;
-                    }
-                    if (my.dotfiles &amp;&amp; file[0] == '.') {
-                        return;
-                    }
-
-                    var h;
-                    var size;
-                    var ss = fs.statSync(prova + '/' + file);
-                    var d = new Date(ss.mtime);
-                    if (ss.isDirectory()) {
-                        size = '-';
-                        file += '/';
-                    } else {
-                        size = String(ss.size);
-                    }
-                    h = '&lt;a href="' + file + '">' + file + '&lt;/a>';
-                    h += multiple(file.length,50);
-                    if (my.date) {
-                        h += pad(d.getDate()) + '-' + month[d.getMonth()] + '-'
-                                + d.getFullYear();
-                        h += ' ' + pad(d.getHours()) + ':'
-                                + pad(d.getMinutes());
-                        h += multiple(size.length,20);
-                    }
-                    if (my.size) {
-                        h += size;
-                    }
-                    h += '\n';
-                    if (my.priority) {
-                        if (size == '-') {
-                            head += h;
-                        } else {
-                            f += h;
-                        }
-                    } else {
-                        head += h;
-                    }
-                    return;
-                });
-
-                head += f;
-                res.send(head + footer);
                 return;
             });
 
@@ -191,6 +379,8 @@ function wrapper(my) {
 
         return;
     };
+    // end callback
+
 }
 
 /**
@@ -207,17 +397,16 @@ module.exports = function index(root,options) {
     if (!root) {
         throw new TypeError('root path required');
     }
+    var r = resolve(root);
+    if (r[r.length - 1] == '/') {
+        r = r.substr(0,r.length - 1);
+    }
     if (!fs.existsSync(root)) {
         throw new Error('path not exists');
     }
-    if (!fs.statSync(root).isDirectory()) {
+    if (!fs.statSync(r).isDirectory()) {
         throw new Error('path is not a directory');
     }
-    var r = resolve(root);
-    if (root[root.length - 1] == '/') {
-        r = root.substr(0,root.length - 1);
-    }
-
     var options = options || Object.create(null);
     var my = {
         root: r,
@@ -226,10 +415,13 @@ module.exports = function index(root,options) {
         date: options.date == false ? false : true,
         size: options.size == false ? false : true,
         priority: options.priority == false ? false : true,
+        cache: options.cache == false ? false : true,
         strictMethod: Boolean(options.strictMethod),
-        static: options.static == false ? function() {
+        sync: Boolean(options.sync),
+        json: Boolean(options.json),
+        static: options.static == false ? function end(req,res,next) {
 
-            return;
+            return next();
         } : serve(r,options.static)
     };
     return wrapper(my);
@@ -244,13 +436,13 @@ module.exports = function index(root,options) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-mod_autoindex.html">mod_autoindex</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-mod_autoindex.html">mod_autoindex</a></li></ul><h3>Global</h3><ul><li><a href="global.html#mod_callback">mod_callback</a></li><li><a href="global.html#mod_sync">mod_sync</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha9</a> on Fri Aug 08 2014 10:59:22 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha9</a> on Mon Aug 11 2014 11:38:24 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>
