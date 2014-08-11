@@ -100,12 +100,11 @@ function wrapper(my) {
     function output(res,head,after,path,stat) {
 
         if (my.json) {
-            head = JSON.stringify(head);
-            res.end(head);
+            res.send(head);
             STORY.body = head;
         } else {
             head += after + footer;
-            res.end(head);
+            res.send(head);
             STORY.body = head;
         }
         if (my.cache) {
@@ -224,7 +223,7 @@ function wrapper(my) {
             if (stat) {
                 if (STORY.mtime && STORY.mtime == stat.mtime.getTime()
                         && STORY.path == prova) {
-                    return res.end(STORY.body);
+                    return res.send(STORY.body);
                 }
                 if (!stat.isDirectory()) {
                     return end(req,res,next);
@@ -291,7 +290,7 @@ function wrapper(my) {
             }
             if (STORY.mtime && STORY.mtime == stat.mtime.getTime()
                     && STORY.path == prova) {
-                return res.end(STORY.body);
+                return res.send(STORY.body);
             }
             if (!stat.isDirectory()) {
                 return end(req,res,next);

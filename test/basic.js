@@ -61,7 +61,8 @@ describe('basic',function() {
 
     it('should support index.html',function(done) {
 
-        request(app).get('/test').expect(200,done);
+        request(app).get('/test').expect('Content-Type',/html/)
+                .expect(200,done);
     });
 
     it('should not support if dir not exist',function(done) {
