@@ -100,12 +100,13 @@ function wrapper(my) {
     function output(res,head,after,path,stat) {
 
         if (my.json) {
-            res.send(head);
+            res.end(head);
             STORY.body = head;
-        }
-        res.send(head + after + footer);
-        if (my.cache) {
+        } else {
+            res.end(head + after + footer);
             STORY.body = head + after + footer;
+        }
+        if (my.cache) {
             STORY.path = path;
             STORY.mtime = stat.mtime.getTime();
         }
@@ -138,12 +139,12 @@ function wrapper(my) {
             var h = pad(d.getDate()) + '-' + month[d.getMonth()] + '-'
                     + d.getFullYear();
             h += ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
-            head[fil].date = h;
+            head[fil].mtime = h;
         }
         if (my.size) {
             head[fil].size = size;
         }
-        return [head,after];
+        return [head,null];
     }
 
     /**
@@ -221,7 +222,7 @@ function wrapper(my) {
             if (stat) {
                 if (STORY.mtime && STORY.mtime == stat.mtime.getTime()
                         && STORY.path == prova) {
-                    return res.send(STORY.body);
+                    return res.end(STORY.body);
                 }
                 if (!stat.isDirectory()) {
                     return end(req,res,next);
@@ -239,8 +240,9 @@ function wrapper(my) {
                 var files = fs.readdirSync(prova);
                 if (files) {
                     var after = '';
-                    files.forEach(function(file) {
+                    for (var i = 0, ii = files.length; i < ii; i++) {
 
+                        var file = files[i];
                         if (my.exclude && my.exclude.test(file)) {
                             return;
                         }
@@ -253,9 +255,7 @@ function wrapper(my) {
                             head = r[0];
                             after = r[1];
                         }
-                        return;
-                    });
-
+                    }
                     return output(res,head,after,prova,stat);
 
                 }
@@ -289,7 +289,7 @@ function wrapper(my) {
             }
             if (STORY.mtime && STORY.mtime == stat.mtime.getTime()
                     && STORY.path == prova) {
-                return res.send(STORY.body);
+                return res.end(STORY.body);
             }
             if (!stat.isDirectory()) {
                 return end(req,res,next);
@@ -310,37 +310,39 @@ function wrapper(my) {
                     return end(req,res,next);
                 }
                 var after = '';
-                var cc = files.length;
-                files.forEach(function(file) {
+                var cc = files.length - 1;
+                for (var i = 0, ii = files.length; i < ii; i++) {
+                    !function(file) {
 
-                    if (my.exclude && my.exclude.test(file)) {
-                        if (cc-- == 1) {
-                            return output(res,head,after,prova,stat);
+                        if (my.exclude && my.exclude.test(file)) {
+                            if (!cc--) {
+                                return output(res,head,after,prova,stat);
+                            }
+                            return;
                         }
-                        return;
-                    }
-                    if (my.dotfiles && file[0] == '.') {
-                        if (cc-- == 1) {
-                            return output(res,head,after,prova,stat);
+                        if (my.dotfiles && file[0] == '.') {
+                            if (!cc--) {
+                                return output(res,head,after,prova,stat);
+                            }
+                            return;
                         }
-                        return;
-                    }
-                    fs.stat(prova + '/' + file,function(err,stats) {
+                        fs.stat(prova + '/' + file,function(err,stats) {
 
-                        if (err) {
-                            return end(req,res,next);
-                        }
-                        var r = build(head,after,file,stats);
-                        head = r[0];
-                        after = r[1];
-                        if (cc-- == 1) {
-                            return output(res,head,after,prova,stat);
-                        }
-                        return;
-                    });
+                            if (err) {
+                                return end(req,res,next);
+                            }
+                            var r = build(head,after,file,stats);
+                            head = r[0];
+                            after = r[1];
+                            if (!cc--) {
+                                return output(res,head,after,prova,stat);
+                            }
+                            return;
+                        });
 
-                    return;
-                });
+                        return;
+                    }(files[i]);
+                }
 
                 return;
             });
@@ -368,15 +370,15 @@ module.exports = function index(root,options) {
     if (!root) {
         throw new TypeError('root path required');
     }
+    var r = resolve(root);
+    if (r[r.length - 1] == '/') {
+        r = r.substr(0,r.length - 1);
+    }
     if (!fs.existsSync(root)) {
         throw new Error('path not exists');
     }
-    if (!fs.statSync(root).isDirectory()) {
+    if (!fs.statSync(r).isDirectory()) {
         throw new Error('path is not a directory');
-    }
-    var r = resolve(root);
-    if (root[root.length - 1] == '/') {
-        r = root.substr(0,root.length - 1);
     }
     var options = options || Object.create(null);
     var my = {
@@ -386,10 +388,10 @@ module.exports = function index(root,options) {
         date: options.date == false ? false : true,
         size: options.size == false ? false : true,
         priority: options.priority == false ? false : true,
+        cache: options.cache == false ? false : true,
         strictMethod: Boolean(options.strictMethod),
         sync: Boolean(options.sync),
         json: Boolean(options.json),
-        cache: options.cache == false ? false : true,
         static: options.static == false ? function end(req,res,next) {
 
             return next();
