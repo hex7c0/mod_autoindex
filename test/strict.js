@@ -14,7 +14,8 @@
  */
 // import
 try {
-    var index = require('../index.min.js'); // use require('mod_autoindex') instead
+    var index = require('../index.min.js'); // use require('mod_autoindex')
+                                            // instead
     var app = require('express')();
     var request = require('supertest');
 } catch (MODULE_NOT_FOUND) {
@@ -25,44 +26,67 @@ try {
 /*
  * test module
  */
-describe('strict',function() {
+describe('strict', function() {
 
     before(function(done) {
 
-        app.use(index(__dirname,{
+        app.use(index(__dirname, {
             strictMethod: true
         }));
+        app.use(function(err, req, res, next) {
+
+            var code = 0;
+            switch (err.message.toLowerCase()) {
+                case 'not found':
+                    code = 404;
+                    break;
+                case 'unauthorized':
+                    code = 401;
+                    break;
+                case 'forbidden':
+                    code = 403;
+                    break;
+                case 'bad gateway':
+                    code = 502;
+                    break;
+                default:
+                    code = 500;
+                    break;
+            }
+            res.status(code).end();
+            return;
+        });
         done();
     });
 
-    describe('200',function() {
+    describe('200', function() {
 
-        it('GET',function(done) {
+        it('GET', function(done) {
 
-            request(app).get('/').expect(200,done);
+            request(app).get('/').expect(200, done);
         });
 
-        it('HEAD',function(done) {
+        it('HEAD', function(done) {
 
-            request(app).head('/').expect(200,done);
+            request(app).head('/').expect(200, done);
         });
     });
 
-    describe('404',function() {
+    describe('404', function() {
 
-        it('POST',function(done) {
+        it('POST', function(done) {
 
-            request(app).post('/').expect(404,done);
+            request(app).post('/').expect(404, done);
         });
 
-        it('PUT',function(done) {
+        it('PUT', function(done) {
 
-            request(app).put('/').expect(404,done);
+            request(app).put('/').expect(404, done);
         });
 
-        it('OPTIONS',function(done) {
+        it('OPTIONS', function(done) {
 
-            request(app).options('/').expect(404,done);
+            request(app).options('/').expect(404, done);
         });
     });
 });
