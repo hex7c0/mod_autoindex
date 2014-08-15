@@ -15,7 +15,9 @@
  */
 // import
 try {
+    var status = require('http').STATUS_CODES;
     var fs = require('fs');
+    var normalize = require('path').normalize;
     var resolve = require('path').resolve;
     var parse = require('parseurl');
     var serve = require('serve-static');
@@ -26,8 +28,8 @@ try {
 // load
 var header = '<html>\n<head><title>Index of {{path}}</title></head>\n<body bgcolor="white">\n<h1>Index of {{path}}</h1><hr><pre>\n';
 var footer = '</pre><hr></body>\n</html>\n';
-var month = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov',
-        'Dec'];
+var month = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
+        'Oct', 'Nov', 'Dec' ];
 
 /*
  * functions
@@ -40,7 +42,7 @@ var month = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov',
  * @param {Integer} limit - max space
  * @return {String}
  */
-function multiple(length,limit) {
+function multiple(length, limit) {
 
     var space = '';
     if (limit < length) {
@@ -50,6 +52,21 @@ function multiple(length,limit) {
         space += ' ';
     }
     return space;
+}
+
+/**
+ * error handling
+ * 
+ * @function error
+ * @param {Object|Number} e - error
+ * @return {Error}
+ */
+function error(e) {
+
+    if (!isNaN) {
+        return new Error(status[e]);
+    }
+    return new Error(e.code == 'ENAMETOOLONG' ? status[414] : status[404]);
 }
 
 /**
@@ -82,22 +99,22 @@ function wrapper(my) {
      * @param {Object} res - response to client
      * @param {next} next - next callback
      */
-    function end(req,res,next) {
+    function end(req, res, next) {
 
-        return my.static(req,res,next);
+        return my.static(req, res, next);
     }
 
     /**
      * next callback
      * 
-     * @function end
+     * @function output
      * @param {Object} res - response to client
      * @param {Object|String} head - header
      * @param {String} after - post header
      * @param {String} path - dir path
      * @param {Object} stat - path stat
      */
-    function output(res,head,after,path,stat) {
+    function output(res, head, after, path, stat) {
 
         if (my.json) {
             res.send(head);
@@ -124,7 +141,7 @@ function wrapper(my) {
      * @param {Object} stats - stats of file
      * @return {Array}
      */
-    function json(head,after,file,stats) {
+    function json(head, after, file, stats) {
 
         var size;
         var fil = file;
@@ -145,7 +162,7 @@ function wrapper(my) {
         if (my.size) {
             head[fil].size = size;
         }
-        return [head,null];
+        return [ head, null ];
     }
 
     /**
@@ -158,7 +175,7 @@ function wrapper(my) {
      * @param {Object} stats - stats of file
      * @return {Array}
      */
-    function html(head,after,file,stats) {
+    function html(head, after, file, stats) {
 
         var h;
         var size;
@@ -172,13 +189,13 @@ function wrapper(my) {
             size = String(stats.size);
         }
         h = '<a href="' + fil + '">' + fil + '</a>';
-        h += multiple(fil.length,50);
+        h += multiple(fil.length, 50);
         if (my.date) {
             var d = new Date(stats.mtime);
             h += pad(d.getDate()) + '-' + month[d.getMonth()] + '-'
                     + d.getFullYear();
             h += ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
-            h += multiple(size.length,20);
+            h += multiple(size.length, 20);
         }
         if (my.size) {
             h += size;
@@ -193,7 +210,7 @@ function wrapper(my) {
         } else {
             hea += h;
         }
-        return [hea,afte];
+        return [ hea, afte ];
     }
 
     var STORY = Object.create(null);
@@ -212,28 +229,34 @@ function wrapper(my) {
          * @param {Object} res - response to client
          * @param {next} next - next callback
          */
-        return function mod_sync(req,res,next) {
+        return function mod_sync(req, res, next) {
 
             if (my.strictMethod && 'GET' != req.method && 'HEAD' != req.method) {
-                return end(req,res,next);
+                return next(error(404));
             }
-            var path = parse(req).pathname;
-            var prova = my.root + path;
+            var path = decodeURIComponent(parse(req).pathname);
+            var prova = normalize(my.root + path);
+            if (~prova.indexOf('\0')) { // null byte(s), bad request
+                return next(error(400));
+            }
+            if (prova <= my.root) { // /../
+                return next(error(403));
+            }
             var stat = fs.statSync(prova);
             if (stat) {
                 if (STORY.mtime && STORY.mtime == stat.mtime.getTime()
-                        && STORY.path == prova) {
+                        && STORY.path == prova) { // cache
                     return res.send(STORY.body);
                 }
                 if (!stat.isDirectory()) {
-                    return end(req,res,next);
+                    return end(req, res, next);
                 }
                 var head;
                 if (my.json) {
                     head = Object.create(null);
                 } else {
                     head = header;
-                    head = head.replace(/{{path}}/g,path);
+                    head = head.replace(/{{path}}/g, path);
                     if (path != '/') {
                         head += '<a href="../">../</a>\n';
                     }
@@ -252,16 +275,16 @@ function wrapper(my) {
                         }
                         var stats = fs.statSync(prova + '/' + file);
                         if (stats) {
-                            var r = build(head,after,file,stats);
+                            var r = build(head, after, file, stats);
                             head = r[0];
                             after = r[1];
                         }
                     }
-                    return output(res,head,after,prova,stat);
+                    return output(res, head, after, prova, stat);
 
                 }
             }
-            return end(req,res,next);
+            return end(req, res, next);
 
         };
     }
@@ -276,39 +299,45 @@ function wrapper(my) {
      * @param {Object} res - response to client
      * @param {next} next - next callback
      */
-    return function mod_callback(req,res,next) {
+    return function mod_callback(req, res, next) {
 
         if (my.strictMethod && 'GET' != req.method && 'HEAD' != req.method) {
-            return end(req,res,next);
+            return next(error(404));
         }
-        var path = parse(req).pathname;
-        var prova = my.root + path;
-        fs.stat(prova,function(err,stat) {
+        var path = decodeURIComponent(parse(req).pathname);
+        var prova = normalize(my.root + path);
+        if (~prova.indexOf('\0')) { // null byte(s), bad request
+            return next(error(400));
+        }
+        if (prova <= my.root) { // /../
+            return next(error(403));
+        }
+        fs.stat(prova, function(err, stat) {
 
             if (err) {
-                return end(req,res,next);
+                return next(error(err));
             }
             if (STORY.mtime && STORY.mtime == stat.mtime.getTime()
-                    && STORY.path == prova) {
+                    && STORY.path == prova) { // cache
                 return res.send(STORY.body);
             }
             if (!stat.isDirectory()) {
-                return end(req,res,next);
+                return end(req, res, next);
             }
             var head;
             if (my.json) {
                 head = Object.create(null);
             } else {
                 head = header;
-                head = head.replace(/{{path}}/g,path);
+                head = head.replace(/{{path}}/g, path);
                 if (path != '/') {
                     head += '<a href="../">../</a>\n';
                 }
             }
-            fs.readdir(prova,function(err,files) {
+            fs.readdir(prova, function(err, files) {
 
                 if (err) {
-                    return end(req,res,next);
+                    return next(error(err));
                 }
                 var after = '';
                 var cc = files.length - 1;
@@ -317,26 +346,26 @@ function wrapper(my) {
 
                         if (my.exclude && my.exclude.test(file)) {
                             if (!cc--) {
-                                return output(res,head,after,prova,stat);
+                                return output(res, head, after, prova, stat);
                             }
                             return;
                         }
                         if (my.dotfiles && file[0] == '.') {
                             if (!cc--) {
-                                return output(res,head,after,prova,stat);
+                                return output(res, head, after, prova, stat);
                             }
                             return;
                         }
-                        fs.stat(prova + '/' + file,function(err,stats) {
+                        fs.stat(prova + '/' + file, function(err, stats) {
 
                             if (err) {
-                                return end(req,res,next);
+                                return next(error(err));
                             }
-                            var r = build(head,after,file,stats);
+                            var r = build(head, after, file, stats);
                             head = r[0];
                             after = r[1];
                             if (!cc--) {
-                                return output(res,head,after,prova,stat);
+                                return output(res, head, after, prova, stat);
                             }
                             return;
                         });
@@ -366,14 +395,14 @@ function wrapper(my) {
  * @param {Object} [options] - various options. Check README.md
  * @return {Object}
  */
-module.exports = function index(root,options) {
+module.exports = function index(root, options) {
 
     if (!root) {
         throw new TypeError('root path required');
     }
     var r = resolve(root);
     if (r[r.length - 1] == '/') {
-        r = r.substr(0,r.length - 1);
+        r = r.substr(0, r.length - 1);
     }
     if (!fs.existsSync(root)) {
         throw new Error('path not exists');
@@ -393,10 +422,10 @@ module.exports = function index(root,options) {
         strictMethod: Boolean(options.strictMethod),
         sync: Boolean(options.sync),
         json: Boolean(options.json),
-        static: options.static == false ? function end(req,res,next) {
+        static: options.static == false ? function end(req, res, next) {
 
             return next();
-        } : serve(r,options.static)
+        } : serve(r, options.static)
     };
     return wrapper(my);
 };
