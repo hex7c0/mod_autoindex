@@ -2,7 +2,7 @@
 
 [![NPM version](https://badge.fury.io/js/mod_autoindex.svg)](http://badge.fury.io/js/mod_autoindex)
 [![Build Status](https://travis-ci.org/hex7c0/mod_autoindex.svg?branch=master)](https://travis-ci.org/hex7c0/mod_autoindex)
-[![devDependency Status](https://david-dm.org/hex7c0/mod_autoindex/dev-status.svg)](https://david-dm.org/hex7c0/mod_autoindex#info=devDependencies)
+[![Dependency Status](https://david-dm.org/hex7c0/mod_autoindex/status.svg)](https://david-dm.org/hex7c0/mod_autoindex)
 
 Generates directory indexes, automatically, similar to the Unix `ls` command or the Win32 `dir` shell command; with memoization.
 In combination with [serve-static](https://github.com/expressjs/serve-static).
