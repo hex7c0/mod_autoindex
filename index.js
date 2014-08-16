@@ -15,10 +15,12 @@
  */
 // import
 try {
-    var status = require('http').STATUS_CODES;
+    var STATUS = require('http').STATUS_CODES;
+    var PATH = require('path');
     var fs = require('fs');
-    var normalize = require('path').normalize;
-    var resolve = require('path').resolve;
+    var normalize = PATH.normalize;
+    var resolve = PATH.resolve;
+    var join = PATH.join;
     var parse = require('parseurl');
     var serve = require('serve-static');
 } catch (MODULE_NOT_FOUND) {
@@ -64,9 +66,9 @@ function multiple(length, limit) {
 function error(e) {
 
     if (!isNaN) {
-        return new Error(status[e]);
+        return new Error(STATUS[e]);
     }
-    return new Error(e.code == 'ENAMETOOLONG' ? status[414] : status[404]);
+    return new Error(e.code == 'ENAMETOOLONG' ? STATUS[414] : STATUS[404]);
 }
 
 /**
@@ -234,8 +236,9 @@ function wrapper(my) {
             if (my.strictMethod && 'GET' != req.method && 'HEAD' != req.method) {
                 return next(error(404));
             }
-            var path = decodeURIComponent(parse(req).pathname);
-            var prova = normalize(my.root + path);
+            var path = decodeURIComponent(parse(req).pathname).replace(
+                    /\/{2,}/, '/');
+            var prova = normalize(join(my.root, path));
             if (~prova.indexOf('\0')) { // null byte(s), bad request
                 return next(error(400));
             }
@@ -273,7 +276,7 @@ function wrapper(my) {
                         if (my.dotfiles && file[0] == '.') {
                             return;
                         }
-                        var stats = fs.statSync(prova + '/' + file);
+                        var stats = fs.statSync(prova + PATH.sep + file);
                         if (stats) {
                             var r = build(head, after, file, stats);
                             head = r[0];
@@ -304,8 +307,9 @@ function wrapper(my) {
         if (my.strictMethod && 'GET' != req.method && 'HEAD' != req.method) {
             return next(error(404));
         }
-        var path = decodeURIComponent(parse(req).pathname);
-        var prova = normalize(my.root + path);
+        var path = decodeURIComponent(parse(req).pathname).replace(/\/{2,}/,
+                '/');
+        var prova = normalize(join(my.root, path));
         if (~prova.indexOf('\0')) { // null byte(s), bad request
             return next(error(400));
         }
@@ -356,7 +360,7 @@ function wrapper(my) {
                             }
                             return;
                         }
-                        fs.stat(prova + '/' + file, function(err, stats) {
+                        fs.stat(prova + PATH.sep + file, function(err, stats) {
 
                             if (err) {
                                 return next(error(err));
