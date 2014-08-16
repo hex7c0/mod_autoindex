@@ -14,7 +14,7 @@
  */
 // import
 try {
-    var index = require('../index.min.js'); // use require('mod_autoindex') instead
+    var index = require('../index.min.js'); // use require('mod_autoindex')
     var express = require('express');
 } catch (MODULE_NOT_FOUND) {
     console.error(MODULE_NOT_FOUND);
@@ -25,8 +25,7 @@ var DIR = __dirname + '/..';
 var app = express();
 
 // index
-app.use(index(DIR,{
-    static: false,
+app.use(index(DIR, {
     dotfiles: false
 }));
 
