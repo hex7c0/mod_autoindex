@@ -15,7 +15,7 @@
 // import
 try {
     var index = require('../index.min.js'); // use require('mod_autoindex')
-                                            // instead
+    // instead
     var app = require('express')();
     var request = require('supertest');
 } catch (MODULE_NOT_FOUND) {
@@ -37,17 +37,14 @@ describe('strict', function() {
 
             var code = 0;
             switch (err.message.toLowerCase()) {
-                case 'not found':
-                    code = 404;
-                    break;
-                case 'unauthorized':
-                    code = 401;
-                    break;
                 case 'forbidden':
                     code = 403;
                     break;
-                case 'bad gateway':
-                    code = 502;
+                case 'not found':
+                    code = 404;
+                    break;
+                case 'request-uri too large':
+                    code = 414;
                     break;
                 default:
                     code = 500;

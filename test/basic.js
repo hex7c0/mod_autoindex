@@ -5,7 +5,8 @@
  * @package mod_autoindex
  * @subpackage test
  * @version 0.0.1
- * @author https://github.com/expressjs/serve-static
+ * @author https://github.com/expressjs/serve-static &
+ *         https://github.com/expressjs/serve-index
  * @license GPLv3
  */
 
@@ -35,17 +36,14 @@ describe('basic', function() {
 
             var code = 0;
             switch (err.message.toLowerCase()) {
-                case 'not found':
-                    code = 404;
-                    break;
-                case 'unauthorized':
-                    code = 401;
-                    break;
                 case 'forbidden':
                     code = 403;
                     break;
-                case 'bad gateway':
-                    code = 502;
+                case 'not found':
+                    code = 404;
+                    break;
+                case 'request-uri too large':
+                    code = 414;
                     break;
                 default:
                     code = 500;
@@ -65,6 +63,11 @@ describe('basic', function() {
     it('should support nesting', function(done) {
 
         request(app).get('/test/basic.js').expect(200, done);
+    });
+
+    it('should support multiple slahes', function(done) {
+
+        request(app).get('//////examples').expect(200, done);
     });
 
     it('should set Content-Type', function(done) {
@@ -127,8 +130,37 @@ describe('basic', function() {
                 'public, max-age=0').expect(200, done);
     });
 
+    it('should serve text/html without Accept header', function(done) {
+
+        request(app).get('/')
+                .expect('Content-Type', 'text/html; charset=utf-8').expect(200,
+                        done);
+    });
+
+    it('should deny path will NULL byte', function(done) {
+
+        request(app).get('/%00').expect(404, done);
+    });
+
     it('should deny path outside root', function(done) {
 
-        request(app).get('/.npmignore').expect(404, done);
+        request(app).get('/../').expect(404, done);
+    });
+
+    it('should deny directory traversal attack', function(done) {
+
+        request(app).get('/../../../../../../../../../../../')
+                .expect(404, done);
+    });
+
+    it('should deny directory traversal attack', function(done) {
+
+        request(app).get('/~/Workspace').expect(404, done);
+    });
+
+    it('should treat an ENAMETOOLONG as a 414', function(done) {
+
+        var path = Array(11000).join('foobar');
+        request(app).get('/' + path).expect(414, done);
     });
 });
