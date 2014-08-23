@@ -4,7 +4,7 @@
  * @module mod_autoindex
  * @package mod_autoindex
  * @subpackage main
- * @version 1.3.2
+ * @version 1.4.4
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -68,7 +68,7 @@ function error(e) {
     if (!isNaN) {
         return new Error(STATUS[e]);
     }
-    return new Error(e.code == 'ENAMETOOLONG' ? STATUS[414] : STATUS[404]);
+    return new Error(e.code === 'ENAMETOOLONG' ? STATUS[414] : STATUS[404]);
 }
 
 /**
@@ -204,7 +204,7 @@ function wrapper(my) {
         }
         h += '\n';
         if (my.priority) {
-            if (size == '-') {
+            if (size === '-') {
                 hea += h;
             } else {
                 afte += h;
@@ -247,8 +247,8 @@ function wrapper(my) {
             }
             var stat = fs.statSync(prova);
             if (stat) {
-                if (STORY.mtime && STORY.mtime == stat.mtime.getTime()
-                        && STORY.path == prova) { // cache
+                if (STORY.mtime && STORY.mtime === stat.mtime.getTime()
+                        && STORY.path === prova) { // cache
                     return res.send(STORY.body);
                 }
                 if (!stat.isDirectory()) {
@@ -273,7 +273,7 @@ function wrapper(my) {
                         if (my.exclude && my.exclude.test(file)) {
                             return;
                         }
-                        if (my.dotfiles && file[0] == '.') {
+                        if (my.dotfiles && file[0] === '.') {
                             return;
                         }
                         var stats = fs.statSync(prova + PATH.sep + file);
@@ -321,8 +321,8 @@ function wrapper(my) {
             if (err) {
                 return next(error(err));
             }
-            if (STORY.mtime && STORY.mtime == stat.mtime.getTime()
-                    && STORY.path == prova) { // cache
+            if (STORY.mtime && STORY.mtime === stat.mtime.getTime()
+                    && STORY.path === prova) { // cache
                 return res.send(STORY.body);
             }
             if (!stat.isDirectory()) {
@@ -354,7 +354,7 @@ function wrapper(my) {
                             }
                             return;
                         }
-                        if (my.dotfiles && file[0] == '.') {
+                        if (my.dotfiles && file[0] === '.') {
                             if (!cc--) {
                                 return output(res, head, after, prova, stat);
                             }
