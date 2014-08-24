@@ -4,7 +4,7 @@
  * @module mod_autoindex
  * @package mod_autoindex
  * @subpackage main
- * @version 1.4.4
+ * @version 1.4.5
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -271,10 +271,10 @@ function wrapper(my) {
 
                         var file = files[i];
                         if (my.exclude && my.exclude.test(file)) {
-                            return;
+                            continue;
                         }
                         if (my.dotfiles && file[0] === '.') {
-                            return;
+                            continue;
                         }
                         var stats = fs.statSync(prova + PATH.sep + file);
                         if (stats) {
