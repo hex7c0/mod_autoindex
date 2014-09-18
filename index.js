@@ -4,7 +4,7 @@
  * @module mod_autoindex
  * @package mod_autoindex
  * @subpackage main
- * @version 1.4.5
+ * @version 1.4.9
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -236,8 +236,8 @@ function wrapper(my) {
             if (my.strictMethod && 'GET' != req.method && 'HEAD' != req.method) {
                 return next(error(404));
             }
-            var path = decodeURIComponent(parse(req).pathname).replace(
-                    /\/{2,}/, '/');
+            var path = decodeURIComponent(parse(req).pathname)
+                    .replace(/\/{2,}/, '/');
             var prova = normalize(join(my.root, path));
             if (~prova.indexOf('\0')) { // null byte(s), bad request
                 return next(error(400));
@@ -307,8 +307,8 @@ function wrapper(my) {
         if (my.strictMethod && 'GET' != req.method && 'HEAD' != req.method) {
             return next(error(404));
         }
-        var path = decodeURIComponent(parse(req).pathname).replace(/\/{2,}/,
-                '/');
+        var path = decodeURIComponent(parse(req).pathname)
+                .replace(/\/{2,}/, '/');
         var prova = normalize(join(my.root, path));
         if (~prova.indexOf('\0')) { // null byte(s), bad request
             return next(error(400));
