@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 /**
  * @file basic test
  * @module mod_autoindex

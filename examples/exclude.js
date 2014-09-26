@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 /**
  * @file exclude example
  * @module mod_autoindex

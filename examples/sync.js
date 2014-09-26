@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 /**
  * @file sync example
  * @module mod_autoindex

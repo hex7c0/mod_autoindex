@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 /**
  * @file mod_autoindex main
  * @module mod_autoindex
@@ -349,15 +349,17 @@ function wrapper(my) {
                     !function(file) {
 
                         if (my.exclude && my.exclude.test(file)) {
-                            if (!cc--) {
+                            if (!cc) {
                                 return output(res, head, after, prova, stat);
                             }
+                            cc--;
                             return;
                         }
                         if (my.dotfiles && file[0] === '.') {
-                            if (!cc--) {
+                            if (!cc) {
                                 return output(res, head, after, prova, stat);
                             }
+                            cc--;
                             return;
                         }
                         fs.stat(prova + PATH.sep + file, function(err, stats) {
@@ -368,9 +370,10 @@ function wrapper(my) {
                             var r = build(head, after, file, stats);
                             head = r[0];
                             after = r[1];
-                            if (!cc--) {
+                            if (!cc) {
                                 return output(res, head, after, prova, stat);
                             }
+                            cc--;
                             return;
                         });
 
