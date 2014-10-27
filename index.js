@@ -4,7 +4,7 @@
  * @module mod_autoindex
  * @package mod_autoindex
  * @subpackage main
- * @version 1.4.9
+ * @version 1.4.0
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -399,10 +399,10 @@ function wrapper(my) {
  * @exports index
  * @function index
  * @param {String} root - root path
- * @param {Object} [options] - various options. Check README.md
+ * @param {Object} [opt] - various options. Check README.md
  * @return {Object}
  */
-module.exports = function index(root, options) {
+module.exports = function index(root, opt) {
 
     if (!root) {
         throw new TypeError('root path required');
@@ -417,19 +417,19 @@ module.exports = function index(root, options) {
     if (!fs.statSync(r).isDirectory()) {
         throw new Error('path is not a directory');
     }
-    var options = options || Object.create(null);
+    var options = opt || Object.create(null);
     var my = {
         root: r,
         exclude: options.exclude || false,
-        dotfiles: options.dotfiles == false ? false : true,
-        date: options.date == false ? false : true,
-        size: options.size == false ? false : true,
-        priority: options.priority == false ? false : true,
-        cache: options.cache == false ? false : true,
+        dotfiles: options.dotfiles === false ? false : true,
+        date: options.date === false ? false : true,
+        size: options.size === false ? false : true,
+        priority: options.priority === false ? false : true,
+        cache: options.cache === false ? false : true,
         strictMethod: Boolean(options.strictMethod),
         sync: Boolean(options.sync),
         json: Boolean(options.json),
-        static: options.static == false ? function end(req, res, next) {
+        static: options.static === false ? function end(req, res, next) {
 
             return next();
         } : serve(r, options.static)
