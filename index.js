@@ -402,7 +402,7 @@ function wrapper(my) {
  * @param {Object} [opt] - various options. Check README.md
  * @return {Object}
  */
-module.exports = function index(root, opt) {
+function index(root, opt) {
 
     if (!root) {
         throw new TypeError('root path required');
@@ -435,4 +435,5 @@ module.exports = function index(root, opt) {
         } : serve(r, options.static)
     };
     return wrapper(my);
-};
+}
+module.exports = index;
