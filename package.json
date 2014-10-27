@@ -1,5 +1,5 @@
 {
-  "version": "1.4.14",
+  "version": "1.4.15",
   "name": "mod_autoindex",
   "description": "generates directory indexes, automatically, with memorization",
   "keywords": [
@@ -29,10 +29,11 @@
     "serve-static": "1.7.1"
   },
   "devDependencies": {
-    "express": "~4.9",
+    "express": "~4.10",
     "mocha": "~2.0",
     "grunt-contrib-clean": "~0.6",
     "grunt-contrib-uglify": "~0.6",
+    "grunt-contrib-jshint": "~0.10",
     "grunt-endline": "~0.2",
     "supertest": "~0.13"
   },
