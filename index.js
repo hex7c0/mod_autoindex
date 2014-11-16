@@ -96,19 +96,6 @@ function wrapper(my) {
   /**
    * next callback
    * 
-   * @function end
-   * @param {Object} req - client request
-   * @param {Object} res - response to client
-   * @param {next} next - next callback
-   */
-  function end(req, res, next) {
-
-    return my.static(req, res, next);
-  }
-
-  /**
-   * next callback
-   * 
    * @function output
    * @param {Object} res - response to client
    * @param {Object|String} head - header
@@ -252,7 +239,7 @@ function wrapper(my) {
           return res.send(STORY.body);
         }
         if (stat.isDirectory() === false) {
-          return end(req, res, next);
+          return my.statico(req, res, next);
         }
         var head;
         if (my.json === true) {
@@ -287,7 +274,7 @@ function wrapper(my) {
 
         }
       }
-      return end(req, res, next);
+      return my.statico(req, res, next);
 
     };
   }
@@ -326,7 +313,7 @@ function wrapper(my) {
         return res.send(STORY.body);
       }
       if (stat.isDirectory() === false) {
-        return end(req, res, next);
+        return my.statico(req, res, next);
       }
       var head;
       if (my.json === true) {
@@ -428,7 +415,7 @@ function index(root, opt) {
     strictMethod: Boolean(options.strictMethod),
     sync: Boolean(options.sync),
     json: Boolean(options.json),
-    static: options.static === false ? function end(req, res, next) {
+    statico: options.static === false ? function(req, res, next) {
 
       return next();
     } : serve(r, options.static)
