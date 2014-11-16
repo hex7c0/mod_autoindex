@@ -50,7 +50,7 @@ function multiple(length, limit) {
   if (limit < length) {
     return space;
   }
-  for (var i = 0; i < limit - length; i++) {
+  for (var i = 0, ii = limit - length; i < ii; i++) {
     space += ' ';
   }
   return space;
@@ -65,7 +65,7 @@ function multiple(length, limit) {
  */
 function error(e) {
 
-  if (!isNaN) {
+  if (isNaN(e) === true) {
     return new Error(STATUS[e]);
   }
   return new Error(e.code === 'ENAMETOOLONG' ? STATUS[414] : STATUS[404]);
@@ -410,8 +410,7 @@ function index(root, opt) {
   }
   if (!fs.existsSync(root)) {
     throw new Error('path not exists');
-  }
-  if (!fs.statSync(r).isDirectory()) {
+  } else if (!fs.statSync(r).isDirectory()) {
     throw new Error('path is not a directory');
   }
   var options = opt || Object.create(null);
