@@ -65,7 +65,7 @@ function multiple(length, limit) {
  */
 function error(e) {
 
-  if (isNaN(e) === true) {
+  if (isNaN(e) === false) {
     return new Error(STATUS[e]);
   }
   return new Error(e.code === 'ENAMETOOLONG' ? STATUS[414] : STATUS[404]);
@@ -118,7 +118,7 @@ function wrapper(my) {
    */
   function output(res, head, after, path, stat) {
 
-    if (my.json) {
+    if (my.json === true) {
       res.send(head);
       STORY.body = head;
     } else {
@@ -126,7 +126,7 @@ function wrapper(my) {
       res.send(head);
       STORY.body = head;
     }
-    if (my.cache) {
+    if (my.cache === true) {
       STORY.path = path;
       STORY.mtime = stat.mtime.getTime();
     }
@@ -147,21 +147,21 @@ function wrapper(my) {
 
     var size;
     var fil = file;
-    if (stats.isDirectory()) {
+    if (stats.isDirectory() === true) {
       size = '-';
       fil += '/';
     } else {
       size = String(stats.size);
     }
     head[fil] = Object.create(null);
-    if (my.date) {
+    if (my.date === true) {
       var d = new Date(stats.mtime);
       var h = pad(d.getDate()) + '-' + month[d.getMonth()] + '-'
           + d.getFullYear();
       h += ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
       head[fil].mtime = h;
     }
-    if (my.size) {
+    if (my.size === true) {
       head[fil].size = size;
     }
     return [ head, null ];
@@ -184,7 +184,7 @@ function wrapper(my) {
     var hea = head;
     var afte = after;
     var fil = file;
-    if (stats.isDirectory()) {
+    if (stats.isDirectory() === true) {
       size = '-';
       fil += '/';
     } else {
@@ -192,17 +192,17 @@ function wrapper(my) {
     }
     h = '<a href="' + fil + '">' + fil + '</a>';
     h += multiple(fil.length, 50);
-    if (my.date) {
+    if (my.date === true) {
       var d = new Date(stats.mtime);
       h += pad(d.getDate()) + '-' + month[d.getMonth()] + '-' + d.getFullYear();
       h += ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
       h += multiple(size.length, 20);
     }
-    if (my.size) {
+    if (my.size === true) {
       h += size;
     }
     h += '\n';
-    if (my.priority) {
+    if (my.priority === true) {
       if (size === '-') {
         hea += h;
       } else {
@@ -216,12 +216,12 @@ function wrapper(my) {
 
   var STORY = Object.create(null);
   var build = html;
-  if (my.json) {
+  if (my.json === true) {
     build = json;
   }
 
   // start sync
-  if (my.sync) {
+  if (my.sync === true) {
     /**
      * body
      * 
@@ -232,28 +232,30 @@ function wrapper(my) {
      */
     return function mod_sync(req, res, next) {
 
-      if (my.strictMethod && 'GET' != req.method && 'HEAD' != req.method) {
+      if (my.strictMethod === true && 'GET' !== req.method
+          && 'HEAD' !== req.method) {
         return next(error(404));
       }
       var path = decodeURIComponent(parse(req).pathname).replace(/\/{2,}/, '/');
       var prova = normalize(join(my.root, path));
       if (~prova.indexOf('\0')) { // null byte(s), bad request
+
         return next(error(400));
       }
       if (prova <= my.root) { // /../
         return next(error(403));
       }
       var stat = fs.statSync(prova);
-      if (stat) {
-        if (STORY.mtime && STORY.mtime === stat.mtime.getTime()
+      if (stat !== undefined) {
+        if (STORY.mtime !== undefined && STORY.mtime === stat.mtime.getTime()
             && STORY.path === prova) { // cache
           return res.send(STORY.body);
         }
-        if (!stat.isDirectory()) {
+        if (stat.isDirectory() === false) {
           return end(req, res, next);
         }
         var head;
-        if (my.json) {
+        if (my.json === true) {
           head = Object.create(null);
         } else {
           head = header;
@@ -263,19 +265,19 @@ function wrapper(my) {
           }
         }
         var files = fs.readdirSync(prova);
-        if (files) {
+        if (files !== undefined) {
           var after = '';
           for (var i = 0, ii = files.length; i < ii; i++) {
 
             var file = files[i];
-            if (my.exclude && my.exclude.test(file)) {
+            if (my.exclude !== false && my.exclude.test(file)) {
               continue;
             }
-            if (my.dotfiles && file[0] === '.') {
+            if (my.dotfiles === true && file[0] === '.') {
               continue;
             }
             var stats = fs.statSync(prova + PATH.sep + file);
-            if (stats) {
+            if (stats !== undefined) {
               var r = build(head, after, file, stats);
               head = r[0];
               after = r[1];
@@ -302,7 +304,8 @@ function wrapper(my) {
    */
   return function mod_callback(req, res, next) {
 
-    if (my.strictMethod && 'GET' != req.method && 'HEAD' != req.method) {
+    if (my.strictMethod === true && 'GET' !== req.method
+        && 'HEAD' !== req.method) {
       return next(error(404));
     }
     var path = decodeURIComponent(parse(req).pathname).replace(/\/{2,}/, '/');
@@ -315,18 +318,18 @@ function wrapper(my) {
     }
     fs.stat(prova, function(err, stat) {
 
-      if (err) {
+      if (err !== null) {
         return next(error(err));
       }
       if (STORY.mtime && STORY.mtime === stat.mtime.getTime()
           && STORY.path === prova) { // cache
         return res.send(STORY.body);
       }
-      if (!stat.isDirectory()) {
+      if (stat.isDirectory() === false) {
         return end(req, res, next);
       }
       var head;
-      if (my.json) {
+      if (my.json === true) {
         head = Object.create(null);
       } else {
         head = header;
@@ -337,7 +340,7 @@ function wrapper(my) {
       }
       fs.readdir(prova, function(err, files) {
 
-        if (err) {
+        if (err !== null) {
           return next(error(err));
         }
         var after = '';
@@ -345,15 +348,15 @@ function wrapper(my) {
         for (var i = 0, ii = files.length; i < ii; i++) {
           !function(file) {
 
-            if (my.exclude && my.exclude.test(file)) {
-              if (!cc) {
+            if (my.exclude !== false && my.exclude.test(file)) {
+              if (cc === 0) {
                 return output(res, head, after, prova, stat);
               }
               cc--;
               return;
             }
-            if (my.dotfiles && file[0] === '.') {
-              if (!cc) {
+            if (my.dotfiles === true && file[0] === '.') {
+              if (cc === 0) {
                 return output(res, head, after, prova, stat);
               }
               cc--;
@@ -361,13 +364,13 @@ function wrapper(my) {
             }
             fs.stat(prova + PATH.sep + file, function(err, stats) {
 
-              if (err) {
+              if (err !== null) {
                 return next(error(err));
               }
               var r = build(head, after, file, stats);
               head = r[0];
               after = r[1];
-              if (!cc) {
+              if (cc === 0) {
                 return output(res, head, after, prova, stat);
               }
               cc--;
