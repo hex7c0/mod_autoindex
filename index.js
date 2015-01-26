@@ -15,12 +15,9 @@
  */
 // import
 try {
-  var STATUS = require('http').STATUS_CODES;
-  var PATH = require('path');
+  var status = require('http').STATUS_CODES;
+  var path = require('path');
   var fs = require('fs');
-  var normalize = PATH.normalize;
-  var resolve = PATH.resolve;
-  var join = PATH.join;
   var parse = require('parseurl');
   var serve = require('serve-static');
 } catch (MODULE_NOT_FOUND) {
@@ -77,9 +74,9 @@ function multiple(length, limit) {
 function error(e) {
 
   if (isNaN(e) === false) {
-    return new Error(STATUS[e]);
+    return new Error(status[e]);
   }
-  return new Error(e.code === 'ENAMETOOLONG' ? STATUS[414] : STATUS[404]);
+  return new Error(e.code === 'ENAMETOOLONG' ? status[414] : status[404]);
 }
 
 /**
@@ -111,10 +108,10 @@ function wrapper(my) {
    * @param {Object} res - response to client
    * @param {Object|String} head - header
    * @param {String} after - post header
-   * @param {String} path - dir path
+   * @param {String} paths - dir path
    * @param {Object} stat - path stat
    */
-  function output(res, head, after, path, stat) {
+  function output(res, head, after, paths, stat) {
 
     if (my.json === true) {
       res.send(head);
@@ -125,7 +122,7 @@ function wrapper(my) {
       STORY.body = head;
     }
     if (my.cache === true) {
-      STORY.path = path;
+      STORY.path = paths;
       STORY.mtime = stat.mtime.getTime();
     }
     return;
@@ -234,8 +231,9 @@ function wrapper(my) {
         && 'HEAD' !== req.method) {
         return next(error(404));
       }
-      var path = decodeURIComponent(parse(req).pathname).replace(/\/{2,}/, '/');
-      var prova = normalize(join(my.root, path));
+      var paths = decodeURIComponent(parse(req).pathname)
+      .replace(/\/{2,}/, '/');
+      var prova = path.normalize(path.join(my.root, paths));
       if (~prova.indexOf('\0')) { // null byte(s), bad request
 
         return next(error(400));
@@ -257,8 +255,8 @@ function wrapper(my) {
           head = Object.create(null);
         } else {
           head = header;
-          head = head.replace(/{{path}}/g, path);
-          if (path != '/') {
+          head = head.replace(/{{path}}/g, paths);
+          if (paths != '/') {
             head += '<a href="../">../</a>\n';
           }
         }
@@ -274,7 +272,7 @@ function wrapper(my) {
             if (my.dotfiles === true && file[0] === '.') {
               continue;
             }
-            var stats = fs.statSync(prova + PATH.sep + file);
+            var stats = fs.statSync(prova + path.sep + file);
             if (stats !== undefined) {
               var r = build(head, after, file, stats);
               head = r[0];
@@ -306,8 +304,8 @@ function wrapper(my) {
       && 'HEAD' !== req.method) {
       return next(error(404));
     }
-    var path = decodeURIComponent(parse(req).pathname).replace(/\/{2,}/, '/');
-    var prova = normalize(join(my.root, path));
+    var paths = decodeURIComponent(parse(req).pathname).replace(/\/{2,}/, '/');
+    var prova = path.normalize(path.join(my.root, paths));
     if (~prova.indexOf('\0')) { // null byte(s), bad request
       return next(error(400));
     }
@@ -331,8 +329,8 @@ function wrapper(my) {
         head = Object.create(null);
       } else {
         head = header;
-        head = head.replace(/{{path}}/g, path);
-        if (path != '/') {
+        head = head.replace(/{{path}}/g, paths);
+        if (paths != '/') {
           head += '<a href="../">../</a>\n';
         }
       }
@@ -360,7 +358,7 @@ function wrapper(my) {
               cc--;
               return;
             }
-            fs.stat(prova + PATH.sep + file, function(err, stats) {
+            fs.stat(prova + path.sep + file, function(err, stats) {
 
               if (err !== null) {
                 return next(error(err));
@@ -405,7 +403,7 @@ function index(root, opt) {
   if (!root) {
     throw new TypeError('root path required');
   }
-  var r = resolve(root);
+  var r = path.resolve(root);
   if (r[r.length - 1] == '/') {
     r = r.substr(0, r.length - 1);
   }
