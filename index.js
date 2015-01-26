@@ -30,8 +30,19 @@ try {
 // load
 var header = '<html>\n<head><title>Index of {{path}}</title></head>\n<body bgcolor="white">\n<h1>Index of {{path}}</h1><hr><pre>\n';
 var footer = '</pre><hr></body>\n</html>\n';
-var month = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
-    'Oct', 'Nov', 'Dec' ];
+var month = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec' ];
 
 /*
  * functions
@@ -144,7 +155,7 @@ function wrapper(my) {
     if (my.date === true) {
       var d = new Date(stats.mtime);
       var h = pad(d.getDate()) + '-' + month[d.getMonth()] + '-'
-          + d.getFullYear();
+        + d.getFullYear();
       h += ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
       head[fil].mtime = h;
     }
@@ -220,7 +231,7 @@ function wrapper(my) {
     return function mod_sync(req, res, next) {
 
       if (my.strictMethod === true && 'GET' !== req.method
-          && 'HEAD' !== req.method) {
+        && 'HEAD' !== req.method) {
         return next(error(404));
       }
       var path = decodeURIComponent(parse(req).pathname).replace(/\/{2,}/, '/');
@@ -235,7 +246,7 @@ function wrapper(my) {
       var stat = fs.statSync(prova);
       if (stat !== undefined) {
         if (STORY.mtime !== undefined && STORY.mtime === stat.mtime.getTime()
-            && STORY.path === prova) { // cache
+          && STORY.path === prova) { // cache
           return res.send(STORY.body);
         }
         if (stat.isDirectory() === false) {
@@ -292,7 +303,7 @@ function wrapper(my) {
   return function mod_callback(req, res, next) {
 
     if (my.strictMethod === true && 'GET' !== req.method
-        && 'HEAD' !== req.method) {
+      && 'HEAD' !== req.method) {
       return next(error(404));
     }
     var path = decodeURIComponent(parse(req).pathname).replace(/\/{2,}/, '/');
@@ -309,7 +320,7 @@ function wrapper(my) {
         return next(error(err));
       }
       if (STORY.mtime && STORY.mtime === stat.mtime.getTime()
-          && STORY.path === prova) { // cache
+        && STORY.path === prova) { // cache
         return res.send(STORY.body);
       }
       if (stat.isDirectory() === false) {
