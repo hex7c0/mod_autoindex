@@ -414,7 +414,7 @@ function index(root, opt) {
     static: options.static === false ? false : options.static || {}
   };
 
-  if (my.dotfiles === false) {
+  if (my.dotfiles === false && options.static !== false) {
     my.static.dotfiles = 'allow';
   }
   my.statico = my.static === false ? function(req, res, next) {
