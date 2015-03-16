@@ -1,6 +1,6 @@
 'use strict';
 /**
- * @file sync example
+ * @file error example
  * @module mod_autoindex
  * @subpackage examples
  * @version 0.0.1
@@ -18,11 +18,30 @@ var dir = __dirname + '/..';
 var app = express();
 
 // index
-app.use(index(dir, {
-  static: false, // disable serve-static
-  dotfiles: false, // show dotfiles
-  sync: true, // use sync version
-}));
+app.use(index(dir));
+
+// error handler
+app.use(function(err, req, res, next) {
+
+  var code;
+  var msg = err.message.toLowerCase();
+
+  switch (msg) {
+    case 'forbidden':
+      code = 403;
+      break;
+    case 'not found':
+      code = 404;
+      break;
+    case 'request-uri too large':
+      code = 414;
+      break;
+    default:
+      code = 500;
+      break;
+  }
+  res.status(code).send(msg);
+});
 
 // server starting
 app.listen(3000);
