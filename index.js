@@ -2,9 +2,8 @@
 /**
  * @file mod_autoindex main
  * @module mod_autoindex
- * @package mod_autoindex
  * @subpackage main
- * @version 1.4.0
+ * @version 1.5.0
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -13,33 +12,15 @@
 /*
  * initialize module
  */
-// import
-try {
-  var status = require('http').STATUS_CODES;
-  var path = require('path');
-  var fs = require('fs');
-  var parse = require('parseurl');
-  var serve = require('serve-static');
-} catch (MODULE_NOT_FOUND) {
-  console.error(MODULE_NOT_FOUND);
-  process.exit(1);
-}
-// load
+var status = require('http').STATUS_CODES;
+var path = require('path');
+var fs = require('fs');
+var parse = require('parseurl');
+var serve = require('serve-static');
 var header = '<html>\n<head><title>Index of {{path}}</title></head>\n<body bgcolor="white">\n<h1>Index of {{path}}</h1><hr><pre>\n';
 var footer = '</pre><hr></body>\n</html>\n';
-var month = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec' ];
+var month = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
+  'Oct', 'Nov', 'Dec' ];
 
 /*
  * functions
@@ -248,6 +229,9 @@ function wrapper(my) {
           return res.send(STORY.body);
         }
         if (stat.isDirectory() === false) {
+          if (my.exclude !== false && my.exclude.test(prova)) {
+            return next(error(404));
+          }
           return my.statico(req, res, next);
         }
         var head;
@@ -261,7 +245,7 @@ function wrapper(my) {
           }
         }
         var files = fs.readdirSync(prova);
-        if (files !== undefined) {
+        if (files) {
           var after = '';
           for (var i = 0, ii = files.length; i < ii; i++) {
 
@@ -273,7 +257,7 @@ function wrapper(my) {
               continue;
             }
             var stats = fs.statSync(prova + path.sep + file);
-            if (stats !== undefined) {
+            if (stats) {
               var r = build(head, after, file, stats);
               head = r[0];
               after = r[1];
@@ -322,6 +306,9 @@ function wrapper(my) {
         return res.send(STORY.body);
       }
       if (stat.isDirectory() === false) {
+        if (my.exclude !== false && my.exclude.test(prova)) {
+          return next(error(404));
+        }
         return my.statico(req, res, next);
       }
       var head;
@@ -336,9 +323,10 @@ function wrapper(my) {
       }
       fs.readdir(prova, function(err, files) {
 
-        if (err !== null) {
+        if (err) {
           return next(error(err));
         }
+
         var after = '';
         var cc = files.length - 1;
         for (var i = 0, ii = files.length; i < ii; i++) {
