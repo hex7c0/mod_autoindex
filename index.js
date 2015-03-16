@@ -216,15 +216,14 @@ function wrapper(my) {
       .replace(/\/{2,}/, '/');
       var prova = path.normalize(path.join(my.root, paths));
       if (~prova.indexOf('\0')) { // null byte(s), bad request
-
         return next(error(400));
-      }
-      if (prova <= my.root) { // /../
+      } else if (prova <= my.root) { // /../
         return next(error(403));
       }
+
       var stat = fs.statSync(prova);
-      if (stat !== undefined) {
-        if (STORY.mtime !== undefined && STORY.mtime === stat.mtime.getTime()
+      if (stat) {
+        if (STORY.mtime && STORY.mtime === stat.mtime.getTime()
           && STORY.path === prova) { // cache
           return res.send(STORY.body);
         }
@@ -292,13 +291,13 @@ function wrapper(my) {
     var prova = path.normalize(path.join(my.root, paths));
     if (~prova.indexOf('\0')) { // null byte(s), bad request
       return next(error(400));
-    }
-    if (prova <= my.root) { // /../
+    } else if (prova <= my.root) { // /../
       return next(error(403));
     }
+
     fs.stat(prova, function(err, stat) {
 
-      if (err !== null) {
+      if (err) {
         return next(error(err));
       }
       if (STORY.mtime && STORY.mtime === stat.mtime.getTime()
@@ -348,7 +347,7 @@ function wrapper(my) {
             }
             fs.stat(prova + path.sep + file, function(err, stats) {
 
-              if (err !== null) {
+              if (err) {
                 return next(error(err));
               }
               var r = build(head, after, file, stats);
@@ -412,11 +411,17 @@ function index(root, opt) {
     strictMethod: Boolean(options.strictMethod),
     sync: Boolean(options.sync),
     json: Boolean(options.json),
-    statico: options.static === false ? function(req, res, next) {
-
-      return next();
-    } : serve(r, options.static)
+    static: options.static === false ? false : options.static || {}
   };
+
+  if (my.dotfiles === false) {
+    my.static.dotfiles = 'allow';
+  }
+  my.statico = my.static === false ? function(req, res, next) {
+
+    return next();
+  } : serve(r, my.static);
+
   return wrapper(my);
 }
 module.exports = index;
