@@ -21,8 +21,7 @@ var assert = require('assert');
  */
 describe('sync', function() {
 
-  var text;
-  var app;
+  var app, text;
 
   beforeEach(function(done) {
 

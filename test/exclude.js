@@ -23,53 +23,114 @@ describe(
   'exclude',
   function() {
 
-    before(function(done) {
+    describe(
+      'callback',
+      function() {
 
-      app.use(index(__dirname, {
-        exclude: /.js$/
-      })).use(function(err, req, res, next) {
+        before(function(done) {
 
-        var code;
-        switch (err.message.toLowerCase()) {
-          case 'forbidden':
-            code = 403;
-            break;
-          case 'not found':
-            code = 404;
-            break;
-          case 'request-uri too large':
-            code = 414;
-            break;
-          default:
-            code = 500;
-            break;
-        }
-        res.status(code).send('error');
-      });
-      done();
-    });
+          app.use(index(__dirname, {
+            exclude: /.js$/
+          })).use(function(err, req, res, next) {
 
-    it(
-      'should return empty "__dirname" dir',
-      function(done) {
-
-        request(app)
-        .get('/')
-        .expect(200)
-        .end(
-          function(err, res) {
-
-            if (/^<html>\n<head><title>Index of \/<\/title><\/head>\n<body bgcolor="white">\n<h1>Index of \/<\/h1><hr><pre>\n<\/pre><hr><\/body>\n<\/html>\n$/
-            .test(res.text)) done();
+            var code;
+            switch (err.message.toLowerCase()) {
+              case 'forbidden':
+                code = 403;
+                break;
+              case 'not found':
+                code = 404;
+                break;
+              case 'request-uri too large':
+                code = 414;
+                break;
+              default:
+                code = 500;
+                break;
+            }
+            res.status(code).send('error');
           });
-      });
-    it('shouldn\'t return "simple.js" file', function(done) {
+          done();
+        });
 
-      request(app).get('/simple.js').expect(404).end(function(err, res) {
+        it(
+          'should return empty "__dirname" dir',
+          function(done) {
 
-        assert.equal(err, null);
-        assert.equal(res.text, 'error');
-        done();
+            request(app)
+            .get('/')
+            .expect(200)
+            .end(
+              function(err, res) {
+
+                if (/^<html>\n<head><title>Index of \/<\/title><\/head>\n<body bgcolor="white">\n<h1>Index of \/<\/h1><hr><pre>\n<\/pre><hr><\/body>\n<\/html>\n$/
+                .test(res.text)) done();
+              });
+          });
+        it('shouldn\'t return "simple.js" file', function(done) {
+
+          request(app).get('/simple.js').expect(404).end(function(err, res) {
+
+            assert.equal(err, null);
+            assert.equal(res.text, 'error');
+            done();
+          });
+        });
       });
-    });
+
+    describe(
+      'sync',
+      function() {
+
+        before(function(done) {
+
+          app.use(index(__dirname, {
+            exclude: /.js$/,
+            sync: true
+          })).use(function(err, req, res, next) {
+
+            var code;
+            switch (err.message.toLowerCase()) {
+              case 'forbidden':
+                code = 403;
+                break;
+              case 'not found':
+                code = 404;
+                break;
+              case 'request-uri too large':
+                code = 414;
+                break;
+              default:
+                code = 500;
+                break;
+            }
+            res.status(code).send('error');
+          });
+          done();
+        });
+
+        it(
+          'should return empty "__dirname" dir',
+          function(done) {
+
+            request(app)
+            .get('/')
+            .expect(200)
+            .end(
+              function(err, res) {
+
+                if (/^<html>\n<head><title>Index of \/<\/title><\/head>\n<body bgcolor="white">\n<h1>Index of \/<\/h1><hr><pre>\n<\/pre><hr><\/body>\n<\/html>\n$/
+                .test(res.text)) done();
+              });
+          });
+        it('shouldn\'t return "simple.js" file', function(done) {
+
+          request(app).get('/simple.js').expect(404).end(function(err, res) {
+
+            assert.equal(err, null);
+            assert.equal(res.text, 'error');
+            done();
+          });
+        });
+      });
   });

@@ -20,57 +20,118 @@ var request = require('supertest');
  */
 describe('strict', function() {
 
-  before(function(done) {
+  describe('callback', function() {
 
-    app.use(index(__dirname, {
-      strictMethod: true
-    })).use(function(err, req, res, next) {
+    before(function(done) {
 
-      var code;
-      switch (err.message.toLowerCase()) {
-        case 'forbidden':
-          code = 403;
-          break;
-        case 'not found':
-          code = 404;
-          break;
-        case 'request-uri too large':
-          code = 414;
-          break;
-        default:
-          code = 500;
-          break;
-      }
-      res.status(code).send('error');
+      app.use(index(__dirname, {
+        strictMethod: true
+      })).use(function(err, req, res, next) {
+
+        var code;
+        switch (err.message.toLowerCase()) {
+          case 'forbidden':
+            code = 403;
+            break;
+          case 'not found':
+            code = 404;
+            break;
+          case 'request-uri too large':
+            code = 414;
+            break;
+          default:
+            code = 500;
+            break;
+        }
+        res.status(code).send('error');
+      });
+      done();
     });
-    done();
+
+    describe('200 strict method', function() {
+
+      it('GET', function(done) {
+
+        request(app).get('/').expect(200, done);
+      });
+      it('HEAD', function(done) {
+
+        request(app).head('/').expect(200, done);
+      });
+    });
+
+    describe('404 strict method', function() {
+
+      it('POST', function(done) {
+
+        request(app).post('/').expect(404, done);
+      });
+      it('PUT', function(done) {
+
+        request(app).put('/').expect(404, done);
+      });
+      it('OPTIONS', function(done) {
+
+        request(app).options('/').expect(404, done);
+      });
+    });
   });
 
-  describe('200 strict method', function() {
+  describe('sync', function() {
 
-    it('GET', function(done) {
+    before(function(done) {
 
-      request(app).get('/').expect(200, done);
+      app.use(index(__dirname, {
+        strictMethod: true,
+        sync: true
+      })).use(function(err, req, res, next) {
+
+        var code;
+        switch (err.message.toLowerCase()) {
+          case 'forbidden':
+            code = 403;
+            break;
+          case 'not found':
+            code = 404;
+            break;
+          case 'request-uri too large':
+            code = 414;
+            break;
+          default:
+            code = 500;
+            break;
+        }
+        res.status(code).send('error');
+      });
+      done();
     });
-    it('HEAD', function(done) {
 
-      request(app).head('/').expect(200, done);
+    describe('200 strict method', function() {
+
+      it('GET', function(done) {
+
+        request(app).get('/').expect(200, done);
+      });
+      it('HEAD', function(done) {
+
+        request(app).head('/').expect(200, done);
+      });
     });
-  });
 
-  describe('404 strict method', function() {
+    describe('404 strict method', function() {
 
-    it('POST', function(done) {
+      it('POST', function(done) {
 
-      request(app).post('/').expect(404, done);
-    });
-    it('PUT', function(done) {
+        request(app).post('/').expect(404, done);
+      });
+      it('PUT', function(done) {
 
-      request(app).put('/').expect(404, done);
-    });
-    it('OPTIONS', function(done) {
+        request(app).put('/').expect(404, done);
+      });
+      it('OPTIONS', function(done) {
 
-      request(app).options('/').expect(404, done);
+        request(app).options('/').expect(404, done);
+      });
     });
   });
 });
