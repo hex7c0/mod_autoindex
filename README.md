@@ -1,8 +1,10 @@
 # [mod_autoindex](http://supergiovane.tk/#/mod_autoindex)
 
-[![NPM version](https://badge.fury.io/js/mod_autoindex.svg)](http://badge.fury.io/js/mod_autoindex)
-[![Build Status](https://travis-ci.org/hex7c0/mod_autoindex.svg?branch=master)](https://travis-ci.org/hex7c0/mod_autoindex)
-[![Dependency Status](https://david-dm.org/hex7c0/mod_autoindex/status.svg)](https://david-dm.org/hex7c0/mod_autoindex)
+[![NPM version](https://img.shields.io/npm/v/mod_autoindex.svg)](https://www.npmjs.com/package/mod_autoindex)
+[![Linux Status](https://img.shields.io/travis/hex7c0/mod_autoindex.svg?label=linux)](https://travis-ci.org/hex7c0/mod_autoindex)
+[![Windows Status](https://img.shields.io/appveyor/ci/hex7c0/mod_autoindex.svg?label=windows)](https://ci.appveyor.com/project/hex7c0/mod_autoindex)
+[![Dependency Status](https://img.shields.io/david/hex7c0/mod_autoindex.svg)](https://david-dm.org/hex7c0/mod_autoindex)
+[![Coveralls](https://img.shields.io/coveralls/hex7c0/mod_autoindex.svg)](https://coveralls.io/r/hex7c0/mod_autoindex)
 
 Generates directory indexes, automatically, similar to the Unix `ls` command or the Win32 `dir` shell command; with memoization.
 In combination with [serve-static](https://github.com/expressjs/serve-static).
@@ -26,12 +28,13 @@ git clone git://github.com/hex7c0/mod_autoindex.git
 inside expressjs project
 ```js
 var autoindex = require('mod_autoindex');
+
 var app = require('express')();
 
 app.use(autoindex(__dirname));
 ```
 
-### autoindex(root,[options])
+### autoindex(root [, options])
 
 #### root
 
@@ -40,18 +43,18 @@ app.use(autoindex(__dirname));
 #### [options]
 
  - `exclude` - **RegExp** Regular expression for files/dirs exclude *(default "disabled")*
- - `dotfiles`- **Boolean** Flag for hide dotfiles *(default "enabled")*
- - `date` - **Boolean** Flag for display modification time *(default "enabled")*
- - `size` - **Boolean** Flag for display files size *(default "enabled")*
- - `priority` - **Boolean** Flag for display dirs before files *(default "enabled")*
- - `cache` - **Boolean** Flag for using cache (depends from mtime dir) *(default "enabled")*
- - `strictMethod` - **Boolean** Flag for check "HEAD" and "GET" HTTP methods *(default "disabled")*
- - `sync` - **Boolean** Flag for using "Sync" methods instead of callback only *(default "disabled")*
- - `json` - **Boolean** Flag for display json output instead of html only *(default "disabled")*
- - `static` - **Object | false** Options for [serve-static](https://github.com/expressjs/serve-static) or disable support (if you use static server like nginx) *(default "null")*
+ - `dotfiles`- **Boolean** Flag for hide dotfiles *(default "true")*
+ - `date` - **Boolean** Flag for display modification time *(default "true")*
+ - `size` - **Boolean** Flag for display files size *(default "true")*
+ - `priority` - **Boolean** Flag for display dirs before files *(default "true")*
+ - `cache` - **Boolean** Flag for using cache (depends from mtime dir) *(default "true")*
+ - `strictMethod` - **Boolean** Flag for show "HEAD" and "GET" HTTP methods only *(default "false")*
+ - `sync` - **Boolean** Flag for using "sync" methods instead of callback *(default "false")*
+ - `json` - **Boolean** Flag for display json output instead of html *(default "false")*
+ - `static` - **Object | false** Options for [serve-static](https://github.com/expressjs/serve-static) or disable support (if you use static server like nginx) *(default "{}")*
 
 ## Examples
 
-Take a look at my [examples](https://github.com/hex7c0/mod_autoindex/tree/master/examples)
+Take a look at my [examples](examples)
 
-### [License GPLv3](http://opensource.org/licenses/GPL-3.0)
+### [License GPLv3](LICENSE)
