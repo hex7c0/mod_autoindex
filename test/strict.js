@@ -41,7 +41,7 @@ describe('strict', function() {
           code = 500;
           break;
       }
-      res.status(code).end();
+      res.status(code).send('error');
     });
     done();
   });
