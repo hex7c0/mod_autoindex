@@ -44,7 +44,17 @@ describe('strict', function() {
         assert.equal(text['.gitignore'], undefined, 'hidden by default');
         assert.equal(typeof text['index.js'], 'object');
         assert.deepEqual(Object.keys(text['index.js']), [ 'mtime', 'size' ]);
-        done();
+
+        // cache
+        request(app).get('/').expect(200).end(function(err, res) {
+
+          assert.equal(err, null);
+          text = JSON.parse(res.text);
+          assert.equal(text['.gitignore'], undefined, 'hidden by default');
+          assert.equal(typeof text['index.js'], 'object');
+          assert.deepEqual(Object.keys(text['index.js']), [ 'mtime', 'size' ]);
+          done();
+        });
       });
     });
     it('should disable "priority" option', function(done) {
@@ -111,6 +121,22 @@ describe('strict', function() {
             'disable size');
           done();
         });
+    });
+    it('should disable "cache" option', function(done) {
+
+      app.use(index(dir, {
+        json: true,
+        cache: false
+      }));
+      request(app).get('/').expect(200).end(function(err, res) {
+
+        assert.equal(err, null);
+        text = JSON.parse(res.text);
+        assert.equal(text['.gitignore'], undefined, 'hidden by default');
+        assert.equal(typeof text['index.js'], 'object');
+        assert.deepEqual(Object.keys(text['index.js']), [ 'mtime', 'size' ]);
+        done();
+      });
     });
   });
 
@@ -129,7 +155,17 @@ describe('strict', function() {
         assert.equal(text['.gitignore'], undefined, 'hidden by default');
         assert.equal(typeof text['index.js'], 'object');
         assert.deepEqual(Object.keys(text['index.js']), [ 'mtime', 'size' ]);
-        done();
+
+        // cache
+        request(app).get('/').expect(200).end(function(err, res) {
+
+          assert.equal(err, null);
+          text = JSON.parse(res.text);
+          assert.equal(text['.gitignore'], undefined, 'hidden by default');
+          assert.equal(typeof text['index.js'], 'object');
+          assert.deepEqual(Object.keys(text['index.js']), [ 'mtime', 'size' ]);
+          done();
+        });
       });
     });
     it('should disable "priority" option', function(done) {
@@ -200,6 +236,23 @@ describe('strict', function() {
             'disable size');
           done();
         });
+    });
+    it('should disable "cache" option', function(done) {
+
+      app.use(index(dir, {
+        json: true,
+        sync: true,
+        cache: false
+      }));
+      request(app).get('/').expect(200).end(function(err, res) {
+
+        assert.equal(err, null);
+        text = JSON.parse(res.text);
+        assert.equal(text['.gitignore'], undefined, 'hidden by default');
+        assert.equal(typeof text['index.js'], 'object');
+        assert.deepEqual(Object.keys(text['index.js']), [ 'mtime', 'size' ]);
+        done();
+      });
     });
   });
 });
