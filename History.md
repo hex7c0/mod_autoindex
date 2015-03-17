@@ -1,3 +1,12 @@
+v1.5.0 / 2015-03-16
+==================
+
+  * Update serve-static@1.9.2
+  * Fix serve-static on exclude files
+  * `windows` test
+  * `iojs` test
+  * `coveralls` test
+
 v1.4.19 / 2015-01-26
 ==================
 
