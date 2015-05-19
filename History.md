@@ -1,7 +1,14 @@
+v1.5.1 / 2015-
+==================
+
+  * Tested with iojs@2
+  * SPDX license
+  * Update `serve-static`@1.9.3
+
 v1.5.0 / 2015-03-16
 ==================
 
-  * Update serve-static@1.9.2
+  * Update `serve-static`@1.9.2
   * Fix serve-static on exclude files
   * `windows` test
   * `iojs` test
@@ -11,12 +18,12 @@ v1.4.19 / 2015-01-26
 ==================
 
   * Package fix
-  * Update serve-static@1.8.1
+  * Update `serve-static`@1.8.1
 
 v1.4.18 / 2015-01-06
 ==================
 
-  * Update serve-static@1.8.0
+  * Update `serve-static`@1.8.0
 
 v1.4.17 / 2015-01-01
 ==================
