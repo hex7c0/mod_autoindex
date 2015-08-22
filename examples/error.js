@@ -41,8 +41,5 @@ app.use(function(err, req, res, next) {
       break;
   }
   res.status(code).send(msg);
-});
-
-// server starting
-app.listen(3000);
+}).listen(3000);// server starting
 console.log('starting "hello world" on port 3000');

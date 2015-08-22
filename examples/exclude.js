@@ -22,8 +22,5 @@ options.exclude = /.js$/; // exclude javascript files
 options.priority = false; // disable dir priority
 
 // index
-app.use(index(dir, options));
-
-// server starting
-app.listen(3000);
+app.use(index(dir, options)).listen(3000);// server starting
 console.log('starting "hello world" on port 3000');

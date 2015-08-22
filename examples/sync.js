@@ -22,8 +22,5 @@ app.use(index(dir, {
   static: false, // disable serve-static
   dotfiles: false, // show dotfiles
   sync: true, // use sync version
-}));
-
-// server starting
-app.listen(3000);
+})).listen(3000);// server starting
 console.log('starting "hello world" on port 3000');
