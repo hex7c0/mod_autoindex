@@ -26,8 +26,7 @@ describe('basic', function() {
 
     before(function(done) {
 
-      app.use(index(dir));
-      app.use(function(err, req, res, next) {
+      app.use(index(dir)).use(function(err, req, res, next) {
 
         var code = 0;
         switch (err.message.toLowerCase()) {
@@ -40,7 +39,8 @@ describe('basic', function() {
           case 'not found':
             code = 404;
             break;
-          case 'request-uri too large', 'uri too long':
+          case 'request-uri too large':
+          case 'uri too long':
             code = 414;
             break;
           default:
