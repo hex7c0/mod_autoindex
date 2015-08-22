@@ -40,7 +40,7 @@ describe('basic', function() {
           case 'not found':
             code = 404;
             break;
-          case 'request-uri too large':
+          case 'request-uri too large', 'uri too long':
             code = 414;
             break;
           default:
@@ -85,7 +85,7 @@ describe('basic', function() {
     it('should support index.html', function(done) {
 
       request(app).get('/test').expect('Content-Type', /html/)
-      .expect(200, done);
+          .expect(200, done);
     });
     it('should not support if dir not exist', function(done) {
 
@@ -106,18 +106,18 @@ describe('basic', function() {
 
           if (err) throw err;
           request(app).get('/index.js').set('If-None-Match', res.headers.etag)
-          .expect(304, done);
+              .expect(304, done);
         });
     });
     it('should set max-age=0 by default', function(done) {
 
       request(app).get('/index.js')
-      .expect('cache-control', 'public, max-age=0').expect(200, done);
+          .expect('cache-control', 'public, max-age=0').expect(200, done);
     });
     it('should serve text/html without Accept header', function(done) {
 
       request(app).get('/').expect('Content-Type', 'text/html; charset=utf-8')
-      .expect(200, done);
+          .expect(200, done);
     });
     it('should deny path will NULL byte', function(done) {
 
@@ -207,7 +207,7 @@ describe('basic', function() {
     it('should support index.html', function(done) {
 
       request(app).get('/test').expect('Content-Type', /html/)
-      .expect(200, done);
+          .expect(200, done);
     });
     it('should not support if dir not exist', function(done) {
 
@@ -228,18 +228,18 @@ describe('basic', function() {
 
           if (err) throw err;
           request(app).get('/index.js').set('If-None-Match', res.headers.etag)
-          .expect(304, done);
+              .expect(304, done);
         });
     });
     it('should set max-age=0 by default', function(done) {
 
       request(app).get('/index.js')
-      .expect('cache-control', 'public, max-age=0').expect(200, done);
+          .expect('cache-control', 'public, max-age=0').expect(200, done);
     });
     it('should serve text/html without Accept header', function(done) {
 
       request(app).get('/').expect('Content-Type', 'text/html; charset=utf-8')
-      .expect(200, done);
+          .expect(200, done);
     });
     it('should deny path will NULL byte', function(done) {
 
@@ -352,7 +352,7 @@ describe('basic', function() {
 
             if (err) throw err;
             request(app).get('/index.js')
-            .set('If-None-Match', res.headers.etag).expect(304, done);
+                .set('If-None-Match', res.headers.etag).expect(304, done);
           });
       });
       it('should set max-age=0 by default', function(done) {
@@ -363,7 +363,8 @@ describe('basic', function() {
       it('should serve text/html without Accept header', function(done) {
 
         request(app).get('/')
-        .expect('Content-Type', 'text/html; charset=utf-8').expect(200, done);
+            .expect('Content-Type', 'text/html; charset=utf-8').expect(200,
+              done);
       });
       it('should deny path will NULL byte', function(done) {
 
@@ -376,7 +377,7 @@ describe('basic', function() {
       it('should deny directory traversal attack', function(done) {
 
         request(app).get('/../../../../../../../../../../../')
-        .expect(403, done);
+            .expect(403, done);
       });
       it('should deny directory traversal attack', function(done) {
 
@@ -476,7 +477,7 @@ describe('basic', function() {
 
             if (err) throw err;
             request(app).get('/index.js')
-            .set('If-None-Match', res.headers.etag).expect(304, done);
+                .set('If-None-Match', res.headers.etag).expect(304, done);
           });
       });
       it('should set max-age=0 by default', function(done) {
@@ -487,7 +488,8 @@ describe('basic', function() {
       it('should serve text/html without Accept header', function(done) {
 
         request(app).get('/')
-        .expect('Content-Type', 'text/html; charset=utf-8').expect(200, done);
+            .expect('Content-Type', 'text/html; charset=utf-8').expect(200,
+              done);
       });
       it('should deny path will NULL byte', function(done) {
 
@@ -500,7 +502,7 @@ describe('basic', function() {
       it('should deny directory traversal attack', function(done) {
 
         request(app).get('/../../../../../../../../../../../')
-        .expect(403, done);
+            .expect(403, done);
       });
       it('should deny directory traversal attack', function(done) {
 
