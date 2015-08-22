@@ -33,7 +33,8 @@ app.use(function(err, req, res, next) {
     case 'not found':
       code = 404;
       break;
-    case 'request-uri too large':
+    case 'request-uri too large': // process.version < iojs@3
+    case 'uri too long': // process.version >= iojs@3
       code = 414;
       break;
     default:
