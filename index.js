@@ -39,7 +39,7 @@ function multiple(length, limit) {
   if (limit < length) {
     return space;
   }
-  for (var i = 0, ii = limit - length; i < ii; i++) {
+  for (var i = 0, ii = limit - length; i < ii; ++i) {
     space += ' ';
   }
   return space;
@@ -213,7 +213,7 @@ function wrapper(my) {
         return next(error(404));
       }
       var paths = decodeURIComponent(parse(req).pathname)
-      .replace(/\/{2,}/, '/');
+          .replace(/\/{2,}/, '/');
       var prova = path.normalize(path.join(my.root, paths));
       if (~prova.indexOf('\0')) { // null byte(s), bad request
         return next(error(400));
@@ -246,7 +246,7 @@ function wrapper(my) {
         var files = fs.readdirSync(prova);
         if (files) {
           var after = '';
-          for (var i = 0, ii = files.length; i < ii; i++) {
+          for (var i = 0, ii = files.length; i < ii; ++i) {
 
             var file = files[i];
             if (my.exclude !== false && my.exclude.test(file)) {
@@ -295,7 +295,7 @@ function wrapper(my) {
       return next(error(403));
     }
 
-    fs.stat(prova, function(err, stat) {
+    return fs.stat(prova, function(err, stat) {
 
       if (err) {
         return next(error(err));
@@ -320,7 +320,8 @@ function wrapper(my) {
           head += '<a href="../">../</a>\n';
         }
       }
-      fs.readdir(prova, function(err, files) {
+
+      return fs.readdir(prova, function(err, files) {
 
         if (err) {
           return next(error(err));
@@ -328,24 +329,24 @@ function wrapper(my) {
 
         var after = '';
         var cc = files.length - 1;
-        for (var i = 0, ii = files.length; i < ii; i++) {
+        for (var i = 0, ii = files.length; i < ii; ++i) {
           !function(file) {
 
             if (my.exclude !== false && my.exclude.test(file)) {
               if (cc === 0) {
                 return output(res, head, after, prova, stat);
               }
-              cc--;
+              --cc;
               return;
-            }
-            if (my.dotfiles === true && file[0] === '.') {
+            } else if (my.dotfiles === true && file[0] === '.') {
               if (cc === 0) {
                 return output(res, head, after, prova, stat);
               }
-              cc--;
+              --cc;
               return;
             }
-            fs.stat(prova + path.sep + file, function(err, stats) {
+
+            return fs.stat(prova + path.sep + file, function(err, stats) {
 
               if (err) {
                 return next(error(err));
@@ -356,21 +357,15 @@ function wrapper(my) {
               if (cc === 0) {
                 return output(res, head, after, prova, stat);
               }
-              cc--;
+              --cc;
               return;
             });
-
-            return;
           }(files[i]);
         }
 
         return;
       });
-
-      return;
     });
-
-    return;
   };
   // end callback
 
