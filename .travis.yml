@@ -1,5 +1,8 @@
 language: node_js
 sudo: false
+os:
+  - linux
+  - osx
 node_js:
   - "0.10"
   - "0.12"
@@ -17,6 +20,9 @@ node_js:
   - "3.3"
   - "4.0"
   - "4.1"
+matrix:
+  allow_failures:
+    - os: osx
 notifications:
   email:
     on_success: never
