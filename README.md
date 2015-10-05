@@ -1,4 +1,4 @@
-# [mod_autoindex](http://supergiovane.tk/#/mod_autoindex)
+# [mod_autoindex](https://github.com/hex7c0/mod_autoindex)
 
 [![NPM version](https://img.shields.io/npm/v/mod_autoindex.svg)](https://www.npmjs.com/package/mod_autoindex)
 [![Linux Status](https://img.shields.io/travis/hex7c0/mod_autoindex.svg?label=linux)](https://travis-ci.org/hex7c0/mod_autoindex)

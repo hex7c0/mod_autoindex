@@ -1,5 +1,5 @@
 {
-  "version": "1.5.3",
+  "version": "1.5.4",
   "name": "mod_autoindex",
   "description": "generates directory indexes, automatically, with memoization",
   "keywords": [
@@ -9,7 +9,7 @@
     "ls"
   ],
   "preferGlobal": false,
-  "homepage": "http://supergiovane.tk/#/mod_autoindex",
+  "homepage": "https://github.com/hex7c0/mod_autoindex",
   "author": {
     "name": "hex7c0",
     "email": "hex7c0@gmail.com",
