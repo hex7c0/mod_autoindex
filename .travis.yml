@@ -30,3 +30,11 @@ notifications:
     on_success: never
 script: "npm run-script test-cov"
 after_script: "cat ./coverage/lcov.info | coveralls"
+before_install:
+  # nvm is not yet supported on osx, manually install
+  - "git clone https://github.com/creationix/nvm.git /tmp/.nvm"
+  - "source /tmp/.nvm/nvm.sh"
+  - "nvm install $NODE_VERSION"
+  - "nvm use $NODE_VERSION"
+  - "npm update -g npm"
+  - "npm --version"
