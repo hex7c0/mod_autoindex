@@ -1,12 +1,19 @@
+v1.5.5 / 2015-03-20
+==================
+
+  * Update `parseurl`@1.3.1
+  * Update `serve-static`@1.10.2
+  * Tested against `node`@5.7
+
 v1.5.4 / 2015-10-05
 ==================
 
-  * Tested with node@4
+  * Tested against `node`@4
 
 v1.5.3 / 2015-08-22
 ==================
 
-  * Tested with iojs@3
+  * Tested against `iojs`@3
 
 v1.5.2 / 2015-06-18
 ==================
@@ -16,7 +23,7 @@ v1.5.2 / 2015-06-18
 v1.5.1 / 2015-05-19
 ==================
 
-  * Tested with iojs@2
+  * Tested against `iojs`@2
   * SPDX license
   * Update `serve-static`@1.9.3
 
