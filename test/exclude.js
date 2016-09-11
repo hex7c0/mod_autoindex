@@ -71,7 +71,7 @@ describe(
 
           request(app).get('/simple.js').expect(404).end(function(err, res) {
 
-            assert.equal(err, null);
+            assert.ifError(err);
             assert.equal(res.text, 'error');
             done();
           });
@@ -127,7 +127,7 @@ describe(
 
           request(app).get('/simple.js').expect(404).end(function(err, res) {
 
-            assert.equal(err, null);
+            assert.ifError(err);
             assert.equal(res.text, 'error');
             done();
           });

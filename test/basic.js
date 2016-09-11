@@ -104,7 +104,7 @@ describe('basic', function() {
       request(app).get('/index.js').end(
         function(err, res) {
 
-          if (err) throw err;
+          assert.ifError(err);
           request(app).get('/index.js').set('If-None-Match', res.headers.etag)
               .expect(304, done);
         });
@@ -226,7 +226,7 @@ describe('basic', function() {
       request(app).get('/index.js').end(
         function(err, res) {
 
-          if (err) throw err;
+          assert.ifError(err);
           request(app).get('/index.js').set('If-None-Match', res.headers.etag)
               .expect(304, done);
         });
@@ -350,7 +350,7 @@ describe('basic', function() {
         request(app).get('/index.js').end(
           function(err, res) {
 
-            if (err) throw err;
+            assert.ifError(err);
             request(app).get('/index.js')
                 .set('If-None-Match', res.headers.etag).expect(304, done);
           });
@@ -475,7 +475,7 @@ describe('basic', function() {
         request(app).get('/index.js').end(
           function(err, res) {
 
-            if (err) throw err;
+            assert.ifError(err);
             request(app).get('/index.js')
                 .set('If-None-Match', res.headers.etag).expect(304, done);
           });

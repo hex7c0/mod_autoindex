@@ -39,7 +39,7 @@ describe('sync', function() {
 
       request(app).get('/').expect(200).end(function(err, res) {
 
-        assert.equal(err, null);
+        assert.ifError(err);
         text = JSON.parse(res.text);
         assert.equal(typeof text, 'object');
         done();
@@ -54,7 +54,7 @@ describe('sync', function() {
 
       request(app).get('/').expect(200).end(function(err, res) {
 
-        assert.equal(err, null);
+        assert.ifError(err);
         assert.deepEqual(text, JSON.parse(res.text));
         done();
       });
@@ -89,7 +89,7 @@ describe('sync', function() {
 
       request(app).get('/foo').expect(404).end(function(err, res) {
 
-        assert.equal(err, null);
+        assert.ifError(err);
         assert.notDeepEqual(res.text, text);
         text = res.text;
         assert.equal(typeof text, 'string');
@@ -123,7 +123,7 @@ describe('sync', function() {
 
       request(app).get('/foo').expect(500).end(function(err, res) {
 
-        assert.equal(err, null);
+        assert.ifError(err);
         assert.equal(text, res.text);
         done();
       });

@@ -48,7 +48,7 @@ describe(
                 .test(res.text)) done('index only');
                 if (!/<\/pre><hr><\/body>\n<\/html>\n$/.test(res.text)) done('body only');
 
-                assert.equal(err, null);
+                assert.ifError(err);
                 var a = res.text.match(/simple.js/g);
                 assert(a.length, 2, 'this test file');
                 done();
@@ -58,7 +58,7 @@ describe(
 
           request(app).get('/simple.js').expect(200).end(function(err, res) {
 
-            assert.equal(err, null);
+            assert.ifError(err);
             var file = fs.readFileSync(__dirname + '/simple.js', {
               encoding: 'utf8'
             });
@@ -94,7 +94,7 @@ describe(
                 .test(res.text)) done('index only');
                 if (!/<\/pre><hr><\/body>\n<\/html>\n$/.test(res.text)) done('body only');
 
-                assert.equal(err, null);
+                assert.ifError(err);
                 var a = res.text.match(/simple.js/g);
                 assert(a.length, 2, 'this test file');
                 done();
@@ -104,7 +104,7 @@ describe(
 
           request(app).get('/simple.js').expect(200).end(function(err, res) {
 
-            assert.equal(err, null);
+            assert.ifError(err);
             var file = fs.readFileSync(__dirname + '/simple.js', {
               encoding: 'utf8'
             });

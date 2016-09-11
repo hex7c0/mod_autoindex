@@ -39,7 +39,7 @@ describe('strict', function() {
       }));
       request(app).get('/').expect(200).end(function(err, res) {
 
-        assert.equal(err, null);
+        assert.ifError(err);
         text = JSON.parse(res.text);
         assert.equal(text['.gitignore'], undefined, 'hidden by default');
         assert.equal(typeof text['index.js'], 'object');
@@ -48,7 +48,7 @@ describe('strict', function() {
         // cache
         request(app).get('/').expect(200).end(function(err, res) {
 
-          assert.equal(err, null);
+          assert.ifError(err);
           text = JSON.parse(res.text);
           assert.equal(text['.gitignore'], undefined, 'hidden by default');
           assert.equal(typeof text['index.js'], 'object');
@@ -65,7 +65,7 @@ describe('strict', function() {
       }));
       request(app).get('/').expect(200).end(function(err, res) {
 
-        assert.equal(err, null);
+        assert.ifError(err);
         assert.notDeepEqual(res.text, text);
         done();
       });
@@ -78,7 +78,7 @@ describe('strict', function() {
       }));
       request(app).get('/').expect(200).end(function(err, res) {
 
-        assert.equal(err, null);
+        assert.ifError(err);
         text = JSON.parse(res.text);
         assert.notEqual(text['.gitignore'], undefined, 'hidden by default');
         assert.equal(typeof text['index.js'], 'object');
@@ -95,7 +95,7 @@ describe('strict', function() {
       request(app).get('/').expect(200).end(
         function(err, res) {
 
-          assert.equal(err, null);
+          assert.ifError(err);
           text = JSON.parse(res.text);
           assert.equal(text['.gitignore'], undefined, 'hidden by default');
           assert.equal(typeof text['index.js'], 'object');
@@ -113,7 +113,7 @@ describe('strict', function() {
       request(app).get('/').expect(200).end(
         function(err, res) {
 
-          assert.equal(err, null);
+          assert.ifError(err);
           text = JSON.parse(res.text);
           assert.equal(text['.gitignore'], undefined, 'hidden by default');
           assert.equal(typeof text['index.js'], 'object');
@@ -130,7 +130,7 @@ describe('strict', function() {
       }));
       request(app).get('/').expect(200).end(function(err, res) {
 
-        assert.equal(err, null);
+        assert.ifError(err);
         text = JSON.parse(res.text);
         assert.equal(text['.gitignore'], undefined, 'hidden by default');
         assert.equal(typeof text['index.js'], 'object');
@@ -150,7 +150,7 @@ describe('strict', function() {
       }));
       request(app).get('/').expect(200).end(function(err, res) {
 
-        assert.equal(err, null);
+        assert.ifError(err);
         text = JSON.parse(res.text);
         assert.equal(text['.gitignore'], undefined, 'hidden by default');
         assert.equal(typeof text['index.js'], 'object');
@@ -159,7 +159,7 @@ describe('strict', function() {
         // cache
         request(app).get('/').expect(200).end(function(err, res) {
 
-          assert.equal(err, null);
+          assert.ifError(err);
           text = JSON.parse(res.text);
           assert.equal(text['.gitignore'], undefined, 'hidden by default');
           assert.equal(typeof text['index.js'], 'object');
@@ -177,7 +177,7 @@ describe('strict', function() {
       }));
       request(app).get('/').expect(200).end(function(err, res) {
 
-        assert.equal(err, null);
+        assert.ifError(err);
         assert.notDeepEqual(res.text, text);
         done();
       });
@@ -191,7 +191,7 @@ describe('strict', function() {
       }));
       request(app).get('/').expect(200).end(function(err, res) {
 
-        assert.equal(err, null);
+        assert.ifError(err);
         text = JSON.parse(res.text);
         assert.notEqual(text['.gitignore'], undefined, 'hidden by default');
         assert.equal(typeof text['index.js'], 'object');
@@ -209,7 +209,7 @@ describe('strict', function() {
       request(app).get('/').expect(200).end(
         function(err, res) {
 
-          assert.equal(err, null);
+          assert.ifError(err);
           text = JSON.parse(res.text);
           assert.equal(text['.gitignore'], undefined, 'hidden by default');
           assert.equal(typeof text['index.js'], 'object');
@@ -228,7 +228,7 @@ describe('strict', function() {
       request(app).get('/').expect(200).end(
         function(err, res) {
 
-          assert.equal(err, null);
+          assert.ifError(err);
           text = JSON.parse(res.text);
           assert.equal(text['.gitignore'], undefined, 'hidden by default');
           assert.equal(typeof text['index.js'], 'object');
@@ -246,7 +246,7 @@ describe('strict', function() {
       }));
       request(app).get('/').expect(200).end(function(err, res) {
 
-        assert.equal(err, null);
+        assert.ifError(err);
         text = JSON.parse(res.text);
         assert.equal(text['.gitignore'], undefined, 'hidden by default');
         assert.equal(typeof text['index.js'], 'object');
