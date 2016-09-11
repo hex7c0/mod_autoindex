@@ -12,6 +12,7 @@
  * initialize module
  */
 var index = require('..');
+var assert = require('assert');
 var app = require('express')();
 var request = require('supertest');
 
