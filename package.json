@@ -38,6 +38,7 @@
     "mocha": "~3.0",
     "supertest": "~2.0"
   },
+  "engine-strict": true,
   "engines": {
     "node": ">=0.10"
   },
