@@ -2,8 +2,7 @@
 /**
  * @file mod_autoindex main
  * @module mod_autoindex
- * @subpackage main
- * @version 1.5.0
+ * @version 1.7.0
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3

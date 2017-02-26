@@ -1,3 +1,10 @@
+v1.7.0 / 2017-02-26
+==================
+
+  * Tested against `node`@7
+  * Remove support for `node`@0
+  * Update `serve-static`@1.12.0
+
 v1.6.0 / 2016-09-12
 ==================
 
