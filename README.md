@@ -1,7 +1,7 @@
 # [mod_autoindex](https://github.com/hex7c0/mod_autoindex)
 
 [![NPM version](https://img.shields.io/npm/v/mod_autoindex.svg)](https://www.npmjs.com/package/mod_autoindex)
-[![Linux Status](https://img.shields.io/travis/hex7c0/mod_autoindex.svg?label=linux)](https://travis-ci.org/hex7c0/mod_autoindex)
+[![Linux Status](https://img.shields.io/travis/hex7c0/mod_autoindex.svg?label=linux-osx)](https://travis-ci.org/hex7c0/mod_autoindex)
 [![Windows Status](https://img.shields.io/appveyor/ci/hex7c0/mod_autoindex.svg?label=windows)](https://ci.appveyor.com/project/hex7c0/mod_autoindex)
 [![Dependency Status](https://img.shields.io/david/hex7c0/mod_autoindex.svg)](https://david-dm.org/hex7c0/mod_autoindex)
 [![Coveralls](https://img.shields.io/coveralls/hex7c0/mod_autoindex.svg)](https://coveralls.io/r/hex7c0/mod_autoindex)
