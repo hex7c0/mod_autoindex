@@ -98,7 +98,7 @@ describe('basic', function() {
     });
     it('should support HEAD', function(done) {
 
-      request(app).head('/index.js').expect(200, '', done);
+      request(app).head('/index.js').expect(200, undefined, done);
     });
     it('should support conditional requests', function(done) {
 
@@ -220,7 +220,7 @@ describe('basic', function() {
     });
     it('should support HEAD', function(done) {
 
-      request(app).head('/index.js').expect(200, '', done);
+      request(app).head('/index.js').expect(200, undefined, done);
     });
     it('should support conditional requests', function(done) {
 
@@ -344,7 +344,7 @@ describe('basic', function() {
       });
       it('should support HEAD', function(done) {
 
-        request(app).head('/index.js').expect(200, '', done);
+        request(app).head('/index.js').expect(200, undefined, done);
       });
       it('should support conditional requests', function(done) {
 
@@ -469,7 +469,7 @@ describe('basic', function() {
       });
       it('should support HEAD', function(done) {
 
-        request(app).head('/index.js').expect(200, '', done);
+        request(app).head('/index.js').expect(200, undefined, done);
       });
       it('should support conditional requests', function(done) {
 
