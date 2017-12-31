@@ -1,3 +1,10 @@
+v1.8.0 / 2017-12-31
+==================
+
+  * Tested against `node`@9
+  * Update `parseurl`@1.3.2
+  * Update `serve-static`@1.13.1
+
 v1.7.0 / 2017-02-26
 ==================
 
