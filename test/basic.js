@@ -73,7 +73,7 @@ describe('basic', function() {
     it('should set Content-Type', function(done) {
 
       request(app).get('/index.js').expect('Content-Type',
-        'application/javascript').expect(200, done);
+        'application/javascript; charset=UTF-8').expect(200, done);
     });
     it('should not support urlencoded pathnames', function(done) {
 
@@ -195,7 +195,7 @@ describe('basic', function() {
     it('should set Content-Type', function(done) {
 
       request(app).get('/index.js').expect('Content-Type',
-        'application/javascript').expect(200, done);
+        'application/javascript; charset=UTF-8').expect(200, done);
     });
     it('should not support urlencoded pathnames', function(done) {
 
@@ -319,7 +319,7 @@ describe('basic', function() {
       it('should set Content-Type', function(done) {
 
         request(app).get('/index.js').expect('Content-Type',
-          'application/javascript').expect(200, done);
+          'application/javascript; charset=UTF-8').expect(200, done);
       });
       it('should not support urlencoded pathnames', function(done) {
 
@@ -444,7 +444,7 @@ describe('basic', function() {
       it('should set Content-Type', function(done) {
 
         request(app).get('/index.js').expect('Content-Type',
-          'application/javascript').expect(200, done);
+          'application/javascript; charset=UTF-8').expect(200, done);
       });
       it('should not support urlencoded pathnames', function(done) {
 
